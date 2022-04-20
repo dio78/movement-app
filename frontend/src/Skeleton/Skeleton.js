@@ -134,7 +134,7 @@ function Skeleton() {
       });
       counter++;
       // console.log(counter);
-    }, 100)
+    }, 10)
   }
   const drawPlaybackSkeleton = (canvas, poses) => {
     const ctx = canvas.current.getContext('2d');
@@ -156,7 +156,9 @@ function Skeleton() {
     e.preventDefault();
     if (keypointArray.length > 0) {
       console.log('click')
-      const poses = keypointArray;
+      const poses = keypointArray.map((x) => {
+        return x;
+      });
       drawPlaybackSkeleton(secondCanvasRef, poses)
     }
   } 
