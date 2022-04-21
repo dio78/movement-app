@@ -1,12 +1,12 @@
 // import './App.css';
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import Webcam from 'react-webcam';
 import * as poseDetection from '@tensorflow-models/pose-detection';
 import * as tf from '@tensorflow/tfjs-core';
 // Register one of the TF.js backends.
 import '@tensorflow/tfjs-backend-webgl';
 // import '@tensorflow/tfjs-backend-wasm';
-
+import { Button, Row, Col } from 'react-bootstrap';
 
 
 
@@ -17,6 +17,7 @@ function Skeleton() {
   const counterRef = useRef(0);
   const runningPlaybackRef = useRef(false);
   const detectorRef = useRef(null);
+  const videoRecorderRef = useRef(null);
   const camRef = useRef(null);
   const canvasRef = useRef(null);
   const secondCanvasRef = useRef(null);
@@ -35,12 +36,48 @@ function Skeleton() {
 
     detectorRef.current = detector;
   }
+  // !!
+  // RECORD VIDEO CODE
+  // !!
+  // const recordVideo = useCallback(() => {
+  //   videoRecorderRef.current = new MediaRecorder(camRef.current.stream, {
+  //     mimeType: "video/webm",
+  //     videoBitsPerSecond : 2500000
+  //   });
+  
+  //   videoRecorderRef.current.addEventListener(
+  //     "dataavailable",
+  //     handleDataAvailable
+  //   );
+  //   videoRecorderRef.current.start(10);
+
+  // }, [camRef, recording, videoRecorderRef]);
+
+  // const [recordedChunks, setRecordedChunks] = useState([]);
+
+  // const handleDataAvailable = useCallback(
+  //   ({ data }) => {
+  //   // debugger;
+  //     if (data.size > 0) {
+  //       debugger;
+  //       setRecordedChunks((prev) => prev.concat(data));
+  //     }
+  //   },
+  //   [setRecordedChunks]
+  // );
+
+  // const stopRecordVideo = useCallback(() => {
+  //   debugger;
+  //   videoRecorderRef.current.stop();
+  //   debugger;
+  // }, [videoRecorderRef, camRef]);
 
   useEffect(() => {  
     
     const interval = setInterval(() => {
       // counterRef.current = counterRef.current + 1;
       // console.log(counterRef.current)
+
         if (detectorRef) {
           detect(detectorRef.current);
         }
@@ -48,7 +85,12 @@ function Skeleton() {
 
     if (recording) {
       console.log('started recording')
+      // recordVideo();
     } else {
+      // if (recordedChunks.length > 0) {
+      //   debugger;
+      //   stopRecordVideo();
+      // }
       console.log('stopped recording')
     }
 
@@ -65,13 +107,13 @@ function Skeleton() {
     if (camRef.current == null) {
       return;
     }
-
     const video = camRef.current.video;
     const pose = await detector.estimatePoses(video);
     
     drawSkeleton(canvasRef, pose);
     if(recording) {
       newArray.push(pose[0].keypoints);
+
     }
     console.log(recording);
   }
@@ -115,12 +157,12 @@ function Skeleton() {
   const RecordStatus = () => {
     if (recording) {
       return (
-        <span>Recording!</span>
+        <h2>Recording!</h2>
       )
     }
 
     return (
-      <span>Not Recording</span>
+      <h2>Not Recording</h2>
     )
   }
 
@@ -203,63 +245,56 @@ function Skeleton() {
       drawPlaybackSkeleton(secondCanvasRef, keypointArray)
     }
   } 
+  
+  
 
   return (
-    <div className="App">
-      <Webcam ref={camRef}
-        width='700'
-        height='550'
+    <div>
+    <Row className='mt-5' >
+      <Col xs={{ span: 5, offset: 1 }} classname='offset-1'>
+        <Webcam ref={camRef}
+
         style={{
-          marginLeft: 'auto',
-          marginRight: 'auto',
-          position: 'absolute',
-          width: '700px',
-          height: '500px',
-          zIndex: 4, 
-          textAlign: 'center',
-          left: 0,
-          right: 65,
-          top: 40
+          width: '640px',
+          height: '480px',
+          zIndex: 2
         }}/>
-      <canvas ref={canvasRef}
-        width='700'
-        height='500'
+
+        <canvas className='offset-1' ref={canvasRef}
+        width='640px'
+        height='480px'
+        style={{
+          position: 'absolute',
+          zIndex: 2, 
+          left: 0,
+        }}/>
+      </Col>
+      <Col xs={{ span: 5, offset: 1 }}>
+      <canvas ref={secondCanvasRef}
+        width='640px'
+        height='480px'
         style={{
           position: 'absolute',
           marginLeft: 'auto',
           marginRight: 'auto',
-          width: '700px',
-          height: '500px',
           zIndex: 4, 
-          textAlign: 'center',
-          left: 0,
-          right: 0,
-          top: 40,
           borderStyle: 'solid',
           borderColor: 'red',
-          borderWidth: '10px'
+          borderWidth: '5px'
         }}/>
-        <canvas ref={secondCanvasRef}
-        width='700'
-        height='500'
-        style={{
-          position: 'absolute',
-          marginLeft: 'auto',
-          marginRight: 'auto',
-          width: '700px',
-          height: '500px',
-          zIndex: 4, 
-          textAlign: 'center',
-          left: 0,
-          right: 0,
-          top: 400,
-          borderStyle: 'solid',
-          borderColor: 'red',
-          borderWidth: '10px'
-        }}/>
-        <button type='button' onClick={handleClick}>Record</button>
+      </Col>
+    </Row>
+    <Row classname='mt-1'>
+      <Col xs={6} className='text-center'>
+        <Button type='button' onClick={handleClick}>Record</Button>
         <RecordStatus />
-        <button type='button' onClick={handlePlayClick}>Play</button>
+      </Col>
+      <Col xs={6} className='text-center'>
+        <Button style={{marginLeft: '20px'}} type='button' onClick={handlePlayClick}>Play Back</Button>
+      </Col>
+      
+      
+    </Row>
     </div>
   );
 }
