@@ -14,6 +14,8 @@ function Skeleton() {
 
   const [keypointArray, setKeypointArray] = useState([]);
   const [recording, setRecording] = useState(false);
+  const counterRef = useRef(0);
+  const detectorRef = useRef(null);
   const camRef = useRef(null);
   const canvasRef = useRef(null);
   const secondCanvasRef = useRef(null);
@@ -30,11 +32,33 @@ function Skeleton() {
 
     const detector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet, detectorConfig);
 
-    
-    setInterval(() => {
-      detect(detector)
-    }, 10)
+    detectorRef.current = detector;
   }
+
+  useEffect(() => {  
+    
+    const interval = setInterval(() => {
+      // counterRef.current = counterRef.current + 1;
+      // console.log(counterRef.current)
+        if (detectorRef) {
+          detect(detectorRef.current);
+        }
+    }, 10);
+
+    if (recording) {
+      console.log('started recording')
+    } else {
+      console.log('stopped recording')
+    }
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [recording, detectorRef.current]);
+
+  useEffect(() => {
+    debugger;
+  }, [keypointArray])
 
   const detect = async (detector) => {
     if (camRef.current == null) {
@@ -43,12 +67,12 @@ function Skeleton() {
 
     const video = camRef.current.video;
     const pose = await detector.estimatePoses(video);
-    // console.log(pose);
+    
     drawSkeleton(canvasRef, pose);
     if(recording) {
       newArray.push(pose[0].keypoints);
     }
-    // console.log(record)
+    console.log(recording);
   }
 
   const drawSkeleton = (canvas, pose) => {
@@ -99,56 +123,59 @@ function Skeleton() {
     )
   }
 
-  useEffect( () => {
-    console.log(recording);
-}, [recording]);
-
   const handleClick = (e) => {
     console.log('clicking')
     e.preventDefault();
-    
-    if (recording) {
-      setRecording(false);
+    if (newArray.length > 0) {
       setKeypointArray(newArray);
-      console.log(keypointArray);
-      console.log('stopped recording')
-    } else if (!recording) {
-      setRecording(true)
-      console.log('started recording')
     }
+    setRecording(recording => !recording);
+    
   }
 
-  const drawPlaybackKeypoints = (poses, ctx) => {
 
+  const runPlayback = (poses, ctx) => {
     let counter = 0;
 
-    setInterval(() => {
-      ctx.clearRect(0, 0, 700, 500);
-      poses[counter].forEach(keypoint => {
-        if (keypoint.score > 0.1) {
-          debugger;
-          ctx.beginPath();
-          ctx.arc(keypoint.x, keypoint.y, 5, 0, 2*Math.PI)
-          ctx.stroke();
-        }
-      });
-      counter++;
-      // console.log(counter);
+    let intervalId = setInterval(() => {
+      const maxCount = poses.length - 1;
+      if (counter === maxCount) {
+        debugger;
+        clearInterval(intervalId)
+        intervalId = null;
+      } else {
+        drawPlaybackKeypoints(counter, poses, ctx);
+        counter++;
+      }
     }, 10)
   }
+  const drawPlaybackKeypoints = (counter, poses, ctx) => {
+    ctx.clearRect(0, 0, 700, 500);
+    poses[counter].forEach(keypoint => {
+      if (keypoint.score > 0.1) {
+        ctx.beginPath();
+        ctx.arc(keypoint.x, keypoint.y, 5, 0, 2*Math.PI)
+        ctx.stroke();
+      }
+    });
+
+    return poses.length - 1;
+
+  }
+
   const drawPlaybackSkeleton = (canvas, poses) => {
     const ctx = canvas.current.getContext('2d');
-    debugger
-    ctx.fillStyle = 'red'
-    ctx.fillRect(0, 0, 150, 75);
+    // ctx.fillStyle = 'red'
+    // ctx.fillRect(0, 0, 150, 75);
     // ctx.beginPath();
     // ctx.arc(nose.x, nose.y, 5, 0, 2*Math.PI)
     // ctx.stroke();
     // ctx.moveTo(0, 50);
     // ctx.lineTo(300, 50);
     // ctx.stroke();
-    debugger;
-    drawPlaybackKeypoints(poses, ctx);
+
+    // drawPlaybackKeypoints(poses, ctx);
+    runPlayback(poses, ctx)
     // drawBones(keypoints, ctx);
   }
 
@@ -156,10 +183,10 @@ function Skeleton() {
     e.preventDefault();
     if (keypointArray.length > 0) {
       console.log('click')
-      const poses = keypointArray.map((x) => {
-        return x;
-      });
-      drawPlaybackSkeleton(secondCanvasRef, poses)
+      // const poses = keypointArray.map((x) => {
+      //   return x;
+      // });
+      drawPlaybackSkeleton(secondCanvasRef, keypointArray)
     }
   } 
 
