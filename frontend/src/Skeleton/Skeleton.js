@@ -15,6 +15,7 @@ function Skeleton() {
   const [keypointArray, setKeypointArray] = useState([]);
   const [recording, setRecording] = useState(false);
   const counterRef = useRef(0);
+  const runningPlaybackRef = useRef(false);
   const detectorRef = useRef(null);
   const camRef = useRef(null);
   const canvasRef = useRef(null);
@@ -136,47 +137,60 @@ function Skeleton() {
 
   const runPlayback = (poses, ctx) => {
     let counter = 0;
-
+    runningPlaybackRef.current = true;
     let intervalId = setInterval(() => {
       const maxCount = poses.length - 1;
       if (counter === maxCount) {
         debugger;
+        runningPlaybackRef.current = false;
         clearInterval(intervalId)
         intervalId = null;
+        ctx.clearRect(0, 0, 700, 500);
       } else {
+        ctx.clearRect(0, 0, 700, 500);
         drawPlaybackKeypoints(counter, poses, ctx);
+        drawPlaybackBones(counter, poses, ctx);
         counter++;
       }
     }, 10)
   }
+
   const drawPlaybackKeypoints = (counter, poses, ctx) => {
-    ctx.clearRect(0, 0, 700, 500);
-    poses[counter].forEach(keypoint => {
+    // ctx.clearRect(0, 0, 700, 500);
+
+    const pose = poses[counter];
+
+    pose.forEach(keypoint => {
       if (keypoint.score > 0.1) {
         ctx.beginPath();
         ctx.arc(keypoint.x, keypoint.y, 5, 0, 2*Math.PI)
         ctx.stroke();
       }
     });
+  }
 
-    return poses.length - 1;
+  const drawPlaybackBones = (counter, poses, ctx) => {
+    const keypoints = poses[counter];
+    const [nose, leftEye, rightEye, leftEar, rightEar, leftShoulder, rightShoulder, leftElbow, rightElbow, leftWrist, rightWrist, leftHip, rightHip, leftKnee, rightKnee, leftAnkle, rightAnkle] = keypoints;
 
+    const pairs = [[leftEye, rightEye], [leftShoulder, rightShoulder], [leftShoulder, leftElbow], [rightShoulder, rightElbow], [leftElbow, leftWrist], [rightElbow, rightWrist], [leftShoulder, rightShoulder], [leftShoulder, leftHip], [rightShoulder, rightHip], [leftHip, rightHip], [leftHip, leftKnee], [rightHip, rightKnee], [leftKnee, leftAnkle], [rightKnee, rightAnkle]]
+
+    pairs.forEach((pair) => {
+      if (pair[0].score > 0.1 && pair[1].score > 0.1) {
+        ctx.moveTo(pair[0].x, pair[0].y);
+        ctx.lineTo(pair[1].x, pair[1].y);
+        ctx.stroke();
+      }
+    })
   }
 
   const drawPlaybackSkeleton = (canvas, poses) => {
     const ctx = canvas.current.getContext('2d');
-    // ctx.fillStyle = 'red'
-    // ctx.fillRect(0, 0, 150, 75);
-    // ctx.beginPath();
-    // ctx.arc(nose.x, nose.y, 5, 0, 2*Math.PI)
-    // ctx.stroke();
-    // ctx.moveTo(0, 50);
-    // ctx.lineTo(300, 50);
-    // ctx.stroke();
-
-    // drawPlaybackKeypoints(poses, ctx);
-    runPlayback(poses, ctx)
-    // drawBones(keypoints, ctx);
+    if (!runningPlaybackRef.current){
+      runPlayback(poses, ctx)
+    } else {
+      console.log('nice try')
+    }    
   }
 
   const handlePlayClick = (e) => {
