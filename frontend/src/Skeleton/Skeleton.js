@@ -6,7 +6,7 @@ import * as tf from '@tensorflow/tfjs-core';
 // Register one of the TF.js backends.
 import '@tensorflow/tfjs-backend-webgl';
 // import '@tensorflow/tfjs-backend-wasm';
-import { Button, Row, Col } from 'react-bootstrap';
+import { Button, Row, Col, Input } from 'react-bootstrap';
 
 
 
@@ -19,10 +19,12 @@ function Skeleton() {
   const detectorRef = useRef(null);
   const videoRecorderRef = useRef(null);
   const camRef = useRef(null);
+  const otherVidRef = useRef(null);
   const canvasRef = useRef(null);
   const secondCanvasRef = useRef(null);
 
   const newArray = [];
+  const [imageArray, setImageArray] = useState([]);
 
   const movenetLoad = async () => {
 
@@ -107,15 +109,17 @@ function Skeleton() {
     if (camRef.current == null) {
       return;
     }
-    const video = camRef.current.video;
+    
+    const video = otherVidRef.current || camRef.current.video;
+
     const pose = await detector.estimatePoses(video);
     
+    debugger;
     drawSkeleton(canvasRef, pose);
     if(recording) {
       newArray.push(pose[0].keypoints);
 
     }
-    console.log(recording);
   }
 
   const drawSkeleton = (canvas, pose) => {
@@ -246,7 +250,37 @@ function Skeleton() {
     }
   } 
   
+  const handleScreenshot = (e) => {
+    e.preventDefault();
+    const imgSrc = camRef.current.getScreenshot();
+    const newArray = [...imageArray, imgSrc]
+    setImageArray(newArray)
+    console.log(imageArray);
+  }
   
+  const VideoMaybe = () => {
+    if (file) {
+      return (
+        <video style={{
+          width: '640px',
+          height: '480px',
+          zIndex: 2 }} ref={otherVidRef} src={file} type='video/mp4' controls></video>
+      )
+    } else {
+      return (
+        <img src='https://cdn.mos.cms.futurecdn.net/JYEXpJURGks76oHVBc5cik.jpg'></img>
+      )
+    }
+  }
+
+  const [file, setFile] = useState();
+  const handleFileChoose = (e) => {
+    debugger;
+    const objectUrl = URL.createObjectURL(e.target.files[0]);
+    setFile(objectUrl);
+
+    debugger;
+  }
 
   return (
     <div>
@@ -267,6 +301,9 @@ function Skeleton() {
           position: 'absolute',
           zIndex: 2, 
           left: 0,
+          borderStyle: 'solid',
+          borderColor: 'red',
+          borderWidth: '5px'
         }}/>
       </Col>
       <Col xs={{ span: 5, offset: 1 }}>
@@ -295,6 +332,13 @@ function Skeleton() {
       
       
     </Row>
+    <Row>
+    <Col xs={{span: 2, offset: 5}} className='text-center'>
+        <Button style={{marginLeft: '20px'}} type='button' onClick={handleScreenshot}>Capture</Button>
+      </Col>
+    </Row>
+    <input type="file" onChange={handleFileChoose}/>
+    <VideoMaybe/>
     </div>
   );
 }

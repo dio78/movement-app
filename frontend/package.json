@@ -2,6 +2,7 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "chromium-args": "--mixed-context",
   "dependencies": {
     "@tensorflow-models/pose-detection": "^2.0.0",
     "@testing-library/jest-dom": "^5.16.4",
