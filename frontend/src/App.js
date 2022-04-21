@@ -5,12 +5,10 @@ import Skeleton from "./Skeleton/Skeleton"
 
 function App() {
   return (
-    <div className="App">
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="about" element={<Skeleton />} />
       </Routes>
-    </div>
   );
 }
 
