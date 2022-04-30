@@ -110,7 +110,7 @@ function Skeleton() {
       return;
     }
     
-    const video = otherVidRef.current || camRef.current.video;
+    const video = camRef.current.video;
 
     const pose = await detector.estimatePoses(video);
     
@@ -262,13 +262,13 @@ function Skeleton() {
     if (file) {
       return (
         <video style={{
-          width: '640px',
-          height: '480px',
+          width: '10rem',
+          // height: '480px',
           zIndex: 2 }} ref={otherVidRef} src={file} type='video/mp4' controls></video>
       )
     } else {
       return (
-        <img src='https://cdn.mos.cms.futurecdn.net/JYEXpJURGks76oHVBc5cik.jpg'></img>
+        <img width={'100rem'} src='https://cdn.mos.cms.futurecdn.net/JYEXpJURGks76oHVBc5cik.jpg'></img>
       )
     }
   }
@@ -285,7 +285,7 @@ function Skeleton() {
   return (
     <div>
     <Row className='mt-5' >
-      <Col xs={{ span: 5, offset: 1 }} classname='offset-1'>
+      <Col xs={{ span: 6, offset: 4 }}>
         <Webcam ref={camRef}
 
         style={{
@@ -294,43 +294,45 @@ function Skeleton() {
           zIndex: 2
         }}/>
 
-        <canvas className='offset-1' ref={canvasRef}
+        <canvas className='offset-4' ref={canvasRef}
         width='640px'
         height='480px'
         style={{
           position: 'absolute',
           zIndex: 2, 
-          left: 0,
-          borderStyle: 'solid',
-          borderColor: 'red',
-          borderWidth: '5px'
-        }}/>
-      </Col>
-      <Col xs={{ span: 5, offset: 1 }}>
-      <canvas ref={secondCanvasRef}
-        width='640px'
-        height='480px'
-        style={{
-          position: 'absolute',
-          marginLeft: 'auto',
-          marginRight: 'auto',
-          zIndex: 4, 
-          borderStyle: 'solid',
-          borderColor: 'red',
-          borderWidth: '5px'
+          left: 8,
+          // borderStyle: 'solid',
+          // borderColor: 'green',
+          // borderWidth: '5px'
         }}/>
       </Col>
     </Row>
-    <Row classname='mt-1'>
-      <Col xs={6} className='text-center'>
+    <Row>
+      <Col xs={{ span: 6, offset: 3 }} className='text-center'>
         <Button type='button' onClick={handleClick}>Record</Button>
         <RecordStatus />
       </Col>
+    </Row>
+    <Row>
+      <Col xs={{ span: 6, offset: 4 }}>
+      <canvas className='mt-5' ref={secondCanvasRef}
+        width='640px'
+        height='480px'
+        style={{
+          zIndex: 2, 
+          borderStyle: 'solid',
+          borderColor: 'green',
+          borderWidth: '5px'
+        }}/>
+      </Col>
+      <Col xs={{ span: 4, offset: 4 }} className='text-center'>
+        <Button style={{marginLeft: '20px'}} type='button' onClick={handlePlayClick}>Play Back</Button>
+      </Col> 
+    </Row>
+    {/* <Row>
       <Col xs={6} className='text-center'>
         <Button style={{marginLeft: '20px'}} type='button' onClick={handlePlayClick}>Play Back</Button>
-      </Col>
-      
-      
+      </Col>  
     </Row>
     <Row>
     <Col xs={{span: 2, offset: 5}} className='text-center'>
@@ -338,7 +340,7 @@ function Skeleton() {
       </Col>
     </Row>
     <input type="file" onChange={handleFileChoose}/>
-    <VideoMaybe/>
+    <VideoMaybe/> */}
     </div>
   );
 }
