@@ -23,6 +23,7 @@ function Skeleton() {
   const canvasRef = useRef(null);
   const secondCanvasRef = useRef(null);
 
+
   const [videoDimensions, setVideoDimensions]  = useState(null);
 
   const newArray = [];
@@ -141,9 +142,9 @@ function Skeleton() {
     e.preventDefault();
     if (newArray.length > 0) {
       setKeypointArray(newArray);
-      
     }
     setRecording(recording => !recording);
+    debugger;
     
   }
   
@@ -235,7 +236,11 @@ function Skeleton() {
     if (file) {
       debugger;
       return (
-        <video ref={otherVidRef} src={file} type='video/mp4' controls onLoadedMetadata={(e) => handleLoad(e)}></video>
+        <video ref={otherVidRef} src={file} type='video/mp4' controls onLoadedMetadata={(e) => handleLoad(e)}
+        style={{
+          zIndex: 4
+        }}
+        ></video>
       )
     } else {
       return null;
@@ -252,18 +257,17 @@ function Skeleton() {
   const CanvasElement = () => {
     if (videoDimensions) {
       return (
-        <canvas ref={secondCanvasRef}
+        <canvas ref={canvasRef}
        width= {videoDimensions[0]}
        height={videoDimensions[1]}
-        style={{
-          position: 'absolute',
-          marginLeft: 'auto',
-          marginRight: 'auto',
-          zIndex: 2, 
-          borderStyle: 'solid',
-          borderColor: 'red',
-          borderWidth: '5px'
-        }}/>
+       
+       style={{
+         position: 'absolute',
+         zIndex: 4, 
+        borderStyle: 'solid',
+        borderColor: 'green',
+        borderWidth: '5px'
+       }}/>
       )
     } else {
       return null;
@@ -273,41 +277,40 @@ function Skeleton() {
 
   return (
     <div>
-    <Row className='mt-5' >
-      <Col xs={{ span: 5, offset: 1 }} classname='offset-1'>
-      
-      <VideoMaybe/>
-
-      <CanvasElement />
-      </Col>
-      <Col xs={{ span: 5, offset: 1 }}>
-      {/* <canvas ref={secondCanvasRef}
-       width='1300px'
-       height='750px'
-        style={{
-          position: 'absolute',
-          marginLeft: 'auto',
-          marginRight: 'auto',
-          zIndex: 4, 
-          borderStyle: 'solid',
-          borderColor: 'red',
-          borderWidth: '5px'
-        }}/> */}
-      </Col>
-    </Row>
-    <Row classname='mt-1'>
-      <Col xs={6} className='text-center'>
-        <Button type='button' onClick={handleClick}>Record</Button>
-        <RecordStatus />
-      </Col>   
-    </Row>
-    <Row>
-    <Col xs={{span: 2, offset: 5}} className='text-center'>
-        <Button style={{marginLeft: '20px'}} type='button' onClick={handleScreenshot}>Capture</Button>
-        <Button style={{marginLeft: '20px'}} type='button' onClick={handlePlayClick}>Play Back</Button>
-      </Col>
-      <input type="file" onChange={handleFileChoose}/>
-    </Row>
+      <Row className='mt-5' >
+        <Col xs={{ span: 6, offset: 3 }}> 
+          <CanvasElement />
+          <VideoMaybe/>   
+        </Col>
+      </Row>
+      <Row classname='mt-1'>
+        <Col xs={{ span: 6, offset: 3 }} className='text-center'>
+          <Button type='button' onClick={handleClick}>Analyze</Button>
+          <RecordStatus />
+        </Col>   
+      </Row>
+      <Row>
+        <Col xs={{ span: 6, offset: 3 }}>
+        <canvas ref={secondCanvasRef}
+        width= {videoDimensions[0]}
+        height={videoDimensions[1]}
+          style={{
+            marginLeft: 'auto',
+            marginRight: 'auto',
+            zIndex: 4, 
+            borderStyle: 'solid',
+            borderColor: 'red',
+            borderWidth: '5px'
+          }}/>
+        </Col>
+      </Row>
+      <Row>
+        <Col xs={{span: 2, offset: 5}} className='text-center'>
+          {/* <Button style={{marginLeft: '20px'}} type='button' onClick={handleScreenshot}>Capture</Button> */}
+          <Button style={{marginLeft: '20px'}} type='button' onClick={handlePlayClick}>Play Back</Button>
+        </Col>
+        <input type="file" onChange={handleFileChoose}/>
+      </Row>
     
     </div>
   );

@@ -285,26 +285,28 @@ function Skeleton() {
   return (
     <div>
     <Row className='mt-5' >
-      <Col xs={{ span: 6, offset: 4 }}>
-        <Webcam ref={camRef}
+      <Col xs={{ span: 6, offset: 3 }}>
 
+      <canvas className='offset-3' ref={canvasRef}
+        width='640px'
+        height='480px'
+        style={{
+          position: 'absolute',
+          zIndex: 2, 
+          left: 2,
+          borderStyle: 'solid',
+          borderColor: 'green',
+          borderWidth: '5px'
+        }}/>
+
+      <Webcam ref={camRef}
         style={{
           width: '640px',
           height: '480px',
           zIndex: 2
         }}/>
 
-        <canvas className='offset-4' ref={canvasRef}
-        width='640px'
-        height='480px'
-        style={{
-          position: 'absolute',
-          zIndex: 2, 
-          left: 8,
-          // borderStyle: 'solid',
-          // borderColor: 'green',
-          // borderWidth: '5px'
-        }}/>
+        
       </Col>
     </Row>
     <Row>
@@ -314,7 +316,7 @@ function Skeleton() {
       </Col>
     </Row>
     <Row>
-      <Col xs={{ span: 6, offset: 4 }}>
+      <Col xs={{ span: 6, offset: 3 }}>
       <canvas className='mt-5' ref={secondCanvasRef}
         width='640px'
         height='480px'
@@ -325,7 +327,7 @@ function Skeleton() {
           borderWidth: '5px'
         }}/>
       </Col>
-      <Col xs={{ span: 4, offset: 4 }} className='text-center'>
+      <Col xs={{ span: 6, offset: 3 }} className='text-center'>
         <Button style={{marginLeft: '20px'}} type='button' onClick={handlePlayClick}>Play Back</Button>
       </Col> 
     </Row>

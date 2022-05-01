@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import App from "./App";
 import Expenses from "./routes/expenses";
-import Invoices from "./routes/invoices";
+import ThumbnailSection from "./routes/ThumbnailSection";
 import Skeleton from './routes/Skeleton';
 import Upload from './routes/Upload';
 
@@ -19,7 +19,7 @@ root.render(
     <Routes>
       <Route path="/" element={<App />}>
         <Route path="expenses" element={<Expenses />} />
-        <Route path="invoices" element={<Invoices />} />
+        <Route path="library" element={<ThumbnailSection />} />
         <Route path="skeleton" element={<Skeleton />} />
         <Route path="upload" element={<Upload />} />
       </Route>

@@ -8,8 +8,8 @@ export default function App() {
         <Container fluid>
         <Navbar.Brand href="#home">MOVEMENT</Navbar.Brand>
         <Nav className="me-auto">
-        <Link className="nav-link" to="/invoices">Invoices</Link> |{" "}
-          <Link className="nav-link"to="/expenses">Expenses</Link> |{" "}
+          <Link className="nav-link" to="/library">Library</Link> |{" "}
+          <Link className="nav-link"to="/create">Create</Link> |{" "}
           <Link className="nav-link" to="/skeleton">Skeleton</Link> |{" "}
           <Link className="nav-link" to="/upload">Upload</Link> |{" "}
         </Nav>
