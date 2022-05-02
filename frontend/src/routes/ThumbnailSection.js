@@ -20,7 +20,6 @@ export default function ThumbnailSection () {
       const { data, status } = await request
       
       if (status === 200) {
-        alert('nice!')
         setVideoArray(data);
         console.log(data);
       } else {
@@ -39,26 +38,18 @@ export default function ThumbnailSection () {
         </div>
       )
     }
-
-    videoArray.map((video, i) => {
-      return (
-        <Col key={i} className="text-center" xs={{span: 6, offset: 3}}>
-          <h4>{video.title}</h4>
-          {/* <img src={video.thumbnail} alt='Thumbnail of video that is described in title above' onClick={alert('clicked')}></img> */}
-        </Col>
-      );
-    })
   }
 
   return (
     <main style={{ padding: "1rem 0" }}>
       <DisplayVideos />
       {videoArray.length > 0 && videoArray.map((video, i) => {
+        debugger;
         return(
-          <Col key={i} xs={{span: 6, offset: 1}}>
-            <h4 onClick={() => console.log('click')}>{video.title}</h4>
-            <h5>{video.description}</h5>
-            {/* <img src={video.thumbnail} alt='Thumbnail of video that is described in title above' onClick={alert('clicked')}></img> */}
+          <Col key={i} xs={{span: 6, offset: 1}} className='mb-5'>
+             <h4>{video.title}</h4>
+            <img src={video.thumbnail} alt='Thumbnail of video that is described in title above' onClick={() => alert('clicked')}></img>
+            <h6>Description: {video.description}</h6>
           </Col>
         )
       })}

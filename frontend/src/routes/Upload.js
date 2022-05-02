@@ -128,18 +128,16 @@ function Skeleton() {
   const RecordStatus = () => {
     if (recording) {
       return (
-        <h2>Recording!</h2>
+        <h2>Analyzing Video!</h2>
       )
     }
 
-    return (
-      <h2>Not Recording</h2>
-    )
+    return null
   }
 
   const handleClick = (e) => {
     console.log('clicking')
-    e.preventDefault();
+    // e.preventDefault();
     if (newArray.length > 0) {
       setKeypointArray(newArray);
     }
@@ -215,7 +213,7 @@ function Skeleton() {
   }
 
   const handlePlayClick = (e) => {
-    e.preventDefault();
+    // e.preventDefault();
     if (keypointArray.length > 0) {
       console.log('click')
       // const poses = keypointArray.map((x) => {
@@ -228,15 +226,30 @@ function Skeleton() {
   const handleLoad = (e) => {
     debugger
     if (!videoDimensions) {
+      handleClick();
       setVideoDimensions([e.target.videoWidth, e.target.videoHeight])
+      console.log(e);
     }
+
   }
   
+  const handleEnded = () => {
+    if (recording) {
+      handleClick();
+    }
+    otherVidRef.autoPlay = false;
+  }
+
+  const playVid = () => {
+    alert('play')
+    otherVidRef.play()
+  }
+
   const VideoMaybe = () => {
     if (file) {
       debugger;
       return (
-        <video ref={otherVidRef} src={file} type='video/mp4' controls onLoadedMetadata={(e) => handleLoad(e)}
+        <video ref={otherVidRef} src={file} type='video/mp4' autoPlay onLoadedMetadata={(e) => handleLoad(e)} onEnded={handleEnded}
         style={{
           zIndex: 4
         }}
@@ -278,20 +291,25 @@ function Skeleton() {
   return (
     <div>
       <Row className='mt-5' >
-        <Col xs={{ span: 6, offset: 3 }}> 
-          <CanvasElement />
-          <VideoMaybe/>   
-        </Col>
+      {keypointArray.length === 0 &&
+      <Col xs={{ span: 6, offset: 3 }}> 
+        <CanvasElement />
+        <VideoMaybe/>   
+      </Col>
+      }
+        
       </Row>
       <Row classname='mt-1'>
         <Col xs={{ span: 6, offset: 3 }} className='text-center'>
-          <Button type='button' onClick={handleClick}>Analyze</Button>
+          {/* <Button type='button' onClick={handleClick}>Analyze</Button> */}
           <RecordStatus />
         </Col>   
       </Row>
       <Row>
         <Col xs={{ span: 6, offset: 3 }}>
-        <canvas ref={secondCanvasRef}
+        {keypointArray.length > 0 && videoDimensions &&
+        <>
+        <canvas className='mt-5' ref={secondCanvasRef}
         width= {videoDimensions[0]}
         height={videoDimensions[1]}
           style={{
@@ -302,12 +320,15 @@ function Skeleton() {
             borderColor: 'red',
             borderWidth: '5px'
           }}/>
+          <Button style={{marginLeft: '20px'}} type='button' onClick={handlePlayClick}>Play Back</Button>
+          </>
+          }
         </Col>
       </Row>
       <Row>
         <Col xs={{span: 2, offset: 5}} className='text-center'>
           {/* <Button style={{marginLeft: '20px'}} type='button' onClick={handleScreenshot}>Capture</Button> */}
-          <Button style={{marginLeft: '20px'}} type='button' onClick={handlePlayClick}>Play Back</Button>
+          
         </Col>
         <input type="file" onChange={handleFileChoose}/>
       </Row>

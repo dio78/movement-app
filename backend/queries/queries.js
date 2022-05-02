@@ -8,15 +8,14 @@ const pool = new Pool(config);
 // === Queries are below ===
 
 const uploadMovement = (req, res, next) => {
-  
-  const {user_id, title, description, keyframes, canvas_height, canvas_width} = req.body;
+  const {user_id, title, description, thumbnail, keyframes, canvas_height, canvas_width} = req.body;
 
   const query = {
     text: `
-    INSERT INTO movements (user_id, title, description, keyframes, canvas_height, canvas_width)
-      VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;
+    INSERT INTO movements (user_id, title, description, thumbnail, keyframes, canvas_height, canvas_width)
+      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;
     `,
-    values: [user_id, title, description, keyframes, canvas_height, canvas_width]
+    values: [user_id, title, description, thumbnail, keyframes, canvas_height, canvas_width]
   };
 
   pool.query(query, (error, results) => {
@@ -34,7 +33,8 @@ const getAllMovements = (req, res, next) => {
     SELECT
       movement_id,
       title,
-      description
+      description,
+      thumbnail
     FROM movements;
     `
   };
@@ -77,6 +77,7 @@ async function setUpTables(request, response) {
       user_id integer,
       title varchar,
       description varchar,
+      thumbnail varchar,
       keyframes jsonb,
       canvas_height int,
       canvas_width int

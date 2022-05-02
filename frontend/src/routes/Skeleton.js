@@ -8,6 +8,7 @@ import '@tensorflow/tfjs-backend-webgl';
 // import '@tensorflow/tfjs-backend-wasm';
 import { Button, Row, Col, Form } from 'react-bootstrap';
 import axios from  'axios';
+import { render } from 'react-dom';
 
 
 
@@ -89,19 +90,14 @@ function Skeleton() {
 
     if (recording) {
       console.log('started recording')
-      // recordVideo();
     } else {
-      // if (recordedChunks.length > 0) {
-      //   ;
-      //   stopRecordVideo();
-      // }
       console.log('stopped recording')
     }
 
     return () => {
       clearInterval(interval);
     };
-  }, [recording, detectorRef.current]);
+  }, [recording]);
 
   useEffect(() => {
     
@@ -175,6 +171,7 @@ function Skeleton() {
   const handleClick = (e) => {
     console.log('clicking')
     e.preventDefault();
+    handleScreenshot();
     if (newArray.length > 0) {
       setKeypointArray(newArray);
     }
@@ -251,38 +248,12 @@ function Skeleton() {
       console.log(typeof keypointArray);
       console.log(keypointArray);
       
-      const body = {
-        user_id: 1,
-        title: 'Backflip',
-        describe: 'I\'m doing a backflip',
-        keyframes: JSON.stringify(keypointArray),
-        canvas_height: 480,
-        canvas_width: 640
-      };
-
-      try {
-        const request = axios.post(
-          `http://localhost:8000/api/movements/`,
-          body
-        );
-
-        const { status } = await request
-        
-        if (status === 200) {
-          alert('nice!')
-        } else {
-          alert('oops')
-        }
-      } catch(error) {
-        console.log(error);
-      };
-      
       drawPlaybackSkeleton(secondCanvasRef, keypointArray)
     }
   } 
   
   const handleScreenshot = (e) => {
-    e.preventDefault();
+    // e.preventDefault();
     const imgSrc = camRef.current.getScreenshot();
     const newArray = [...imageArray, imgSrc]
     setImageArray(newArray)
@@ -312,14 +283,14 @@ function Skeleton() {
 
   }
 
-  const [title, setTitle] = useRef('');
-  const [description, setDescription] = useRef('');
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
 
   const UploadModal = () => {
     if (!uploadModal) {
       return null;
     } else {
-      return (
+      render (
         <Form>
           <Form.Group className="mb-3" controlId="formBasicText">
             <Form.Label>Movement Title</Form.Label>
@@ -338,7 +309,7 @@ function Skeleton() {
             <Form.Check type="checkbox" label="Check me out" />
           </Form.Group> */}
           
-          <Button variant="primary" type="submit" onClick={handleKeyframeSubmit}>
+          <Button variant="primary" type="click" onClick={handleKeyframeSubmit}>
             Submit
           </Button>
         </Form>
@@ -347,9 +318,44 @@ function Skeleton() {
   }
 
   
-  const handleKeyframeSubmit = (e) => {
+  const handleKeyframeSubmit = async (e) => {
     e.preventDefault();
+    const data = {
+      title: title,
+      description: description,
+      keypointArray: keypointArray
+    }
+    console.log(data);
     alert(title + ' ' + description)
+    console.log(imageArray[0])
+    debugger;
+    const body = {
+      user_id: 1,
+      title: title,
+      description: description,
+      thumbnail: imageArray[0],
+      keyframes: JSON.stringify(keypointArray),
+      canvas_height: 480,
+      canvas_width: 640
+    };
+
+    try {
+      const request = axios.post(
+        `http://localhost:8000/api/movements/`,
+        body
+      );
+
+      const { status } = await request
+      
+      if (status === 200) {
+        alert('nice!')
+      } else {
+        alert('oops')
+      }
+    } catch(error) {
+      console.log(error);
+    };
+
   }
 
   return (
@@ -401,9 +407,30 @@ function Skeleton() {
         <Button style={{marginLeft: '20px'}} type='button' onClick={handlePlayClick}>Play Back</Button>
         <Button style={{marginLeft: '20px'}} type='button' onClick={() => setUploadModal(!uploadModal)}>Upload</Button>
       </Col>
-      <UploadModal />
+      {/* <UploadModal /> */}
+      {uploadModal && 
+        <Form>
+            <Form.Group className="mb-3" controlId="formBasicText">
+              <Form.Label>Movement Title</Form.Label>
+              <Form.Control type="text" placeholder="Enter email" value={title} onChange={(e) => setTitle(e.target.value)}/>
+              <Form.Text className="text-muted">
+                We'll never share your email with anyone else.
+              </Form.Text>
+            </Form.Group>
+
+            <Form.Group className="mb-3" controlId="formBasicTextArea">
+              <Form.Label>Movement Description</Form.Label>
+              <Form.Control as="textarea" rows={3} placeholder="Explain your movement" value={description} onChange={(e) => setDescription(e.target.value)}/>
+            </Form.Group>
+            
+            <Button variant="primary" type="click" onClick={handleKeyframeSubmit}>
+              Submit
+            </Button>
+          </Form>
+      }
     </Row>
-    
+    {imageArray.length > 0 && 
+    <img src='https://fakeimg.pl/300/?text=Thumbnail'></img>}
     {/* <Row>
       <Col xs={6} className='text-center'>
         <Button style={{marginLeft: '20px'}} type='button' onClick={handlePlayClick}>Play Back</Button>
