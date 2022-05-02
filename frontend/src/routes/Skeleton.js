@@ -7,6 +7,7 @@ import * as tf from '@tensorflow/tfjs-core';
 import '@tensorflow/tfjs-backend-webgl';
 // import '@tensorflow/tfjs-backend-wasm';
 import { Button, Row, Col, Input } from 'react-bootstrap';
+import axios from  'axios';
 
 
 
@@ -59,9 +60,9 @@ function Skeleton() {
 
   // const handleDataAvailable = useCallback(
   //   ({ data }) => {
-  //   // debugger;
+  //   // 
   //     if (data.size > 0) {
-  //       debugger;
+  //       ;
   //       setRecordedChunks((prev) => prev.concat(data));
   //     }
   //   },
@@ -69,9 +70,9 @@ function Skeleton() {
   // );
 
   // const stopRecordVideo = useCallback(() => {
-  //   debugger;
+  //   ;
   //   videoRecorderRef.current.stop();
-  //   debugger;
+  //   ;
   // }, [videoRecorderRef, camRef]);
 
   useEffect(() => {  
@@ -90,7 +91,7 @@ function Skeleton() {
       // recordVideo();
     } else {
       // if (recordedChunks.length > 0) {
-      //   debugger;
+      //   ;
       //   stopRecordVideo();
       // }
       console.log('stopped recording')
@@ -102,7 +103,7 @@ function Skeleton() {
   }, [recording, detectorRef.current]);
 
   useEffect(() => {
-    debugger;
+    
   }, [keypointArray])
 
   const detect = async (detector) => {
@@ -114,7 +115,7 @@ function Skeleton() {
 
     const pose = await detector.estimatePoses(video);
     
-    debugger;
+    
     drawSkeleton(canvasRef, pose);
     if(recording) {
       newArray.push(pose[0].keypoints);
@@ -187,7 +188,7 @@ function Skeleton() {
     let intervalId = setInterval(() => {
       const maxCount = poses.length - 1;
       if (counter === maxCount) {
-        debugger;
+        
         runningPlaybackRef.current = false;
         clearInterval(intervalId)
         intervalId = null;
@@ -246,6 +247,29 @@ function Skeleton() {
       // const poses = keypointArray.map((x) => {
       //   return x;
       // });
+      console.log(typeof keypointArray);
+      console.log(keypointArray);
+      
+      const body = {
+        user_id: 1,
+        title: 'Backflip',
+        describe: 'I\'m doing a backflip',
+        keyframes: keypointArray,
+        canvas_height: '480px',
+        canvas_width: '640px'
+      };
+
+      const request = axios.post(
+        `http://localhost:8000/api/movements/`,
+        body
+      );
+      
+      if (request.status === 200) {
+        alert('nice!')
+      } else {
+        alert('oops')
+      }
+
       drawPlaybackSkeleton(secondCanvasRef, keypointArray)
     }
   } 
@@ -275,11 +299,10 @@ function Skeleton() {
 
   const [file, setFile] = useState();
   const handleFileChoose = (e) => {
-    debugger;
+    
     const objectUrl = URL.createObjectURL(e.target.files[0]);
     setFile(objectUrl);
 
-    debugger;
   }
 
   return (
