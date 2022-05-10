@@ -1,47 +1,82 @@
-import * as React from "react";
-import { Routes, Route, Link } from "react-router-dom";
-import "./App.css";
-import Skeleton from "./Skeleton/Skeleton"
+import { Outlet, NavLink } from "react-router-dom";
+import styled from "styled-components";
+import SearchIcon from '@mui/icons-material/Search';
 
-function App() {
+export default function App() {
   return (
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="about" element={<Skeleton />} />
-      </Routes>
+    <div>
+      <NavItems>
+        <BrandTitle className="mx-4">MOVEMENT</BrandTitle>
+        <div>
+          <SearchBar placeholder="Search..."/>
+          <StyledSearchIcon />
+        </div>
+        <div>
+          <NavLink to="/home">
+            <li>Home</li>
+          </NavLink> |
+          <NavLink to="/library">
+            <li>Library</li>
+          </NavLink> |
+          <NavLink to="/create">
+            <li>Create</li>
+          </NavLink> |{" "}
+          <NavLink to="/skeleton">
+            <li>Skeleton</li>
+          </NavLink> |
+          <NavLink to="/upload">
+            <li>Upload</li>
+          </NavLink> |
+        </div>
+        <LoginButton>Login</LoginButton>
+      </NavItems>
+      <Outlet />
+    </div>
   );
 }
 
-function Home() {
-  return (
-    <>
-      <main>
-      <h1>Welcome to React Router!</h1>
-        <h2>Welcome to the homepage!</h2>
-        <p>You can do this, I believe in you.</p>
-      </main>
-      <nav>
-        <Link to="/about">Skeleton</Link>
-      </nav>
-    </>
-  );
-}
+const SearchBar = styled.input`
+  display: inline;
+  border-radius: 5px;
+  margin-bottom: 5px;
+`
+const StyledSearchIcon = styled(SearchIcon)`
+  color: #FFFFFF;
+  margin-left: 5px;
+`
 
-function About() {
-  return (
-    <>
-      <main>
-        <h2>Who are we?</h2>
-        <p>
-          That feels like an existential question, don't you
-          think?
-        </p>
-      </main>
-      <nav>
-        <Link to="/">Home</Link>
-      </nav>
-    </>
-  );
-}
+const LoginButton = styled.button`
+  background-color: green;
+  margin: 0 5px 5px ;
+  display: flex;
+  border-radius: 5px;  
+`
 
-export default App
+const NavItems = styled.ul`
+
+  justify-content: space-between;
+
+  display: flex;
+
+  background-color: #212529;
+  
+  text-align: center;
+
+  padding-top: .5rem;
+  a {
+    text-decoration: none;
+  }
+
+  li {
+    color: #FFFFFF;
+    list-style: none;
+    position: relative;
+    margin: 0 1rem;
+    display: inline;
+  }
+`
+
+const BrandTitle = styled.h1`
+  font-size: 1.5rem;
+  color: #3A36E7;
+`

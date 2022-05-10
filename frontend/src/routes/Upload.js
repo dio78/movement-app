@@ -23,8 +23,12 @@ function Skeleton() {
   const canvasRef = useRef(null);
   const secondCanvasRef = useRef(null);
 
+
+  const [videoDimensions, setVideoDimensions]  = useState(null);
+
   const newArray = [];
   const [imageArray, setImageArray] = useState([]);
+
 
   const movenetLoad = async () => {
 
@@ -38,49 +42,12 @@ function Skeleton() {
 
     detectorRef.current = detector;
   }
-  // !!
-  // RECORD VIDEO CODE
-  // !!
-  // const recordVideo = useCallback(() => {
-  //   videoRecorderRef.current = new MediaRecorder(camRef.current.stream, {
-  //     mimeType: "video/webm",
-  //     videoBitsPerSecond : 2500000
-  //   });
-  
-  //   videoRecorderRef.current.addEventListener(
-  //     "dataavailable",
-  //     handleDataAvailable
-  //   );
-  //   videoRecorderRef.current.start(10);
-
-  // }, [camRef, recording, videoRecorderRef]);
-
-  // const [recordedChunks, setRecordedChunks] = useState([]);
-
-  // const handleDataAvailable = useCallback(
-  //   ({ data }) => {
-  //   // debugger;
-  //     if (data.size > 0) {
-  //       debugger;
-  //       setRecordedChunks((prev) => prev.concat(data));
-  //     }
-  //   },
-  //   [setRecordedChunks]
-  // );
-
-  // const stopRecordVideo = useCallback(() => {
-  //   debugger;
-  //   videoRecorderRef.current.stop();
-  //   debugger;
-  // }, [videoRecorderRef, camRef]);
 
   useEffect(() => {  
     
     const interval = setInterval(() => {
-      // counterRef.current = counterRef.current + 1;
-      // console.log(counterRef.current)
-
-        if (detectorRef) {
+        if (detectorRef && otherVidRef.current) {
+          
           detect(detectorRef.current);
         }
     }, 10);
@@ -102,19 +69,19 @@ function Skeleton() {
   }, [recording, detectorRef.current]);
 
   useEffect(() => {
-    debugger;
   }, [keypointArray])
 
   const detect = async (detector) => {
-    if (camRef.current == null) {
+    if (otherVidRef.current == null) {
+      console.log('false')
       return;
     }
-    
-    const video = otherVidRef.current || camRef.current.video;
+
+    const video = otherVidRef.current;
 
     const pose = await detector.estimatePoses(video);
     
-    debugger;
+    
     drawSkeleton(canvasRef, pose);
     if(recording) {
       newArray.push(pose[0].keypoints);
@@ -124,7 +91,7 @@ function Skeleton() {
 
   const drawSkeleton = (canvas, pose) => {
     const ctx = canvas.current.getContext('2d');
-    ctx.clearRect(0, 0, 700, 500);
+    ctx.clearRect(0, 0, 1500, 1300);
     const keypoints = pose[0].keypoints;
 
     drawKeypoints(keypoints, ctx);
@@ -161,25 +128,31 @@ function Skeleton() {
   const RecordStatus = () => {
     if (recording) {
       return (
-        <h2>Recording!</h2>
+        <h2>Analyzing Video!</h2>
       )
     }
 
-    return (
-      <h2>Not Recording</h2>
-    )
+    return null
   }
 
   const handleClick = (e) => {
     console.log('clicking')
-    e.preventDefault();
+    // e.preventDefault();
     if (newArray.length > 0) {
       setKeypointArray(newArray);
     }
     setRecording(recording => !recording);
+    debugger;
     
   }
-
+  
+  const handleScreenshot = (e) => {
+    e.preventDefault();
+    const imgSrc = camRef.current.getScreenshot();
+    const newArray = [...imageArray, imgSrc]
+    setImageArray(newArray)
+    console.log(imageArray);
+  }
 
   const runPlayback = (poses, ctx) => {
     let counter = 0;
@@ -187,13 +160,13 @@ function Skeleton() {
     let intervalId = setInterval(() => {
       const maxCount = poses.length - 1;
       if (counter === maxCount) {
-        debugger;
+        
         runningPlaybackRef.current = false;
         clearInterval(intervalId)
         intervalId = null;
-        ctx.clearRect(0, 0, 700, 500);
+        ctx.clearRect(0, 0, 1500, 1300);
       } else {
-        ctx.clearRect(0, 0, 700, 500);
+        ctx.clearRect(0, 0, 1500, 1300);
         drawPlaybackKeypoints(counter, poses, ctx);
         drawPlaybackBones(counter, poses, ctx);
         counter++;
@@ -240,7 +213,7 @@ function Skeleton() {
   }
 
   const handlePlayClick = (e) => {
-    e.preventDefault();
+    // e.preventDefault();
     if (keypointArray.length > 0) {
       console.log('click')
       // const poses = keypointArray.map((x) => {
@@ -250,95 +223,116 @@ function Skeleton() {
     }
   } 
   
-  const handleScreenshot = (e) => {
-    e.preventDefault();
-    const imgSrc = camRef.current.getScreenshot();
-    const newArray = [...imageArray, imgSrc]
-    setImageArray(newArray)
-    console.log(imageArray);
+  const handleLoad = (e) => {
+    debugger
+    if (!videoDimensions) {
+      handleClick();
+      setVideoDimensions([e.target.videoWidth, e.target.videoHeight])
+      console.log(e);
+    }
+
   }
   
+  const handleEnded = () => {
+    if (recording) {
+      handleClick();
+    }
+    otherVidRef.autoPlay = false;
+  }
+
+  const playVid = () => {
+    alert('play')
+    otherVidRef.play()
+  }
+
   const VideoMaybe = () => {
     if (file) {
+      debugger;
       return (
-        <video style={{
-          width: '640px',
-          height: '480px',
-          zIndex: 2 }} ref={otherVidRef} src={file} type='video/mp4' controls></video>
+        <video ref={otherVidRef} src={file} type='video/mp4' autoPlay onLoadedMetadata={(e) => handleLoad(e)} onEnded={handleEnded}
+        style={{
+          zIndex: 4
+        }}
+        ></video>
       )
     } else {
-      return (
-        <img src='https://cdn.mos.cms.futurecdn.net/JYEXpJURGks76oHVBc5cik.jpg'></img>
-      )
+      return null;
     }
   }
 
   const [file, setFile] = useState();
   const handleFileChoose = (e) => {
-    debugger;
     const objectUrl = URL.createObjectURL(e.target.files[0]);
     setFile(objectUrl);
 
-    debugger;
+  }
+
+  const CanvasElement = () => {
+    if (videoDimensions) {
+      return (
+        <canvas ref={canvasRef}
+       width= {videoDimensions[0]}
+       height={videoDimensions[1]}
+       
+       style={{
+         position: 'absolute',
+         zIndex: 4, 
+        borderStyle: 'solid',
+        borderColor: 'green',
+        borderWidth: '5px'
+       }}/>
+      )
+    } else {
+      return null;
+    }
+
   }
 
   return (
     <div>
-    <Row className='mt-5' >
-      <Col xs={{ span: 5, offset: 1 }} classname='offset-1'>
-        <Webcam ref={camRef}
-
-        style={{
-          width: '640px',
-          height: '480px',
-          zIndex: 2
-        }}/>
-
-        <canvas className='offset-1' ref={canvasRef}
-        width='640px'
-        height='480px'
-        style={{
-          position: 'absolute',
-          zIndex: 2, 
-          left: 0,
-          borderStyle: 'solid',
-          borderColor: 'red',
-          borderWidth: '5px'
-        }}/>
+      <Row className='mt-5' >
+      {keypointArray.length === 0 &&
+      <Col xs={{ span: 6, offset: 3 }}> 
+        <CanvasElement />
+        <VideoMaybe/>   
       </Col>
-      <Col xs={{ span: 5, offset: 1 }}>
-      <canvas ref={secondCanvasRef}
-        width='640px'
-        height='480px'
-        style={{
-          position: 'absolute',
-          marginLeft: 'auto',
-          marginRight: 'auto',
-          zIndex: 4, 
-          borderStyle: 'solid',
-          borderColor: 'red',
-          borderWidth: '5px'
-        }}/>
-      </Col>
-    </Row>
-    <Row classname='mt-1'>
-      <Col xs={6} className='text-center'>
-        <Button type='button' onClick={handleClick}>Record</Button>
-        <RecordStatus />
-      </Col>
-      <Col xs={6} className='text-center'>
-        <Button style={{marginLeft: '20px'}} type='button' onClick={handlePlayClick}>Play Back</Button>
-      </Col>
-      
-      
-    </Row>
-    <Row>
-    <Col xs={{span: 2, offset: 5}} className='text-center'>
-        <Button style={{marginLeft: '20px'}} type='button' onClick={handleScreenshot}>Capture</Button>
-      </Col>
-    </Row>
-    <input type="file" onChange={handleFileChoose}/>
-    <VideoMaybe/>
+      }
+        
+      </Row>
+      <Row classname='mt-1'>
+        <Col xs={{ span: 6, offset: 3 }} className='text-center'>
+          {/* <Button type='button' onClick={handleClick}>Analyze</Button> */}
+          <RecordStatus />
+        </Col>   
+      </Row>
+      <Row>
+        <Col xs={{ span: 6, offset: 3 }}>
+        {keypointArray.length > 0 && videoDimensions &&
+        <>
+        <canvas className='mt-5' ref={secondCanvasRef}
+        width= {videoDimensions[0]}
+        height={videoDimensions[1]}
+          style={{
+            marginLeft: 'auto',
+            marginRight: 'auto',
+            zIndex: 4, 
+            borderStyle: 'solid',
+            borderColor: 'red',
+            borderWidth: '5px'
+          }}/>
+          <Button style={{marginLeft: '20px'}} type='button' onClick={handlePlayClick}>Play Back</Button>
+          </>
+          }
+        </Col>
+      </Row>
+      <Row>
+        <Col xs={{span: 2, offset: 5}} className='text-center'>
+          {/* <Button style={{marginLeft: '20px'}} type='button' onClick={handleScreenshot}>Capture</Button> */}
+          
+        </Col>
+        <input type="file" onChange={handleFileChoose}/>
+      </Row>
+    
     </div>
   );
 }

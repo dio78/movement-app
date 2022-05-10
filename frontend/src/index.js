@@ -1,16 +1,30 @@
-import * as React from "react";
-import * as ReactDOM from "react-dom";
-import createRoot from "react-dom/client"
-import { BrowserRouter } from "react-router-dom";
-import "./index.css";
-import App from "./App"
+import { createRoot } from 'react-dom/client';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+} from "react-router-dom";
+import App from "./App";
+import Expenses from "./routes/expenses";
+import ThumbnailSection from "./routes/ThumbnailSection";
+import Skeleton from './routes/Skeleton';
+import Upload from './routes/Upload';
+import Home from './routes/Home';
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
+const rootElement = document.getElementById('root');
+const root = createRoot(rootElement);
+
 root.render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </React.StrictMode>
+  <BrowserRouter>
+    <Routes>
+      <Route path="/" element={<App />}>
+        <Route path="home" element={<Home />} />
+        <Route path="expenses" element={<Expenses />} />
+        <Route path="library" element={<ThumbnailSection />} />
+        <Route path="skeleton" element={<Skeleton />} />
+        <Route path="upload" element={<Upload />} />
+      </Route>
+    </Routes>
+  </BrowserRouter>
 );
