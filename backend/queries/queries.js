@@ -30,12 +30,18 @@ const uploadMovement = (req, res, next) => {
 const getAllMovements = (req, res, next) => {
   const query = {
     text: `
-    SELECT
-      movement_id,
-      title,
-      description,
-      thumbnail
-    FROM movements;
+    Select 
+      movements.movement_id,
+      movements.user_id,
+      movers.firstname,
+      movements.title,
+      movements.description,
+      movements.thumbnail,
+      movements.canvas_height,
+      movements.canvas_width
+    FROM
+      movements
+    INNER JOIN movers ON movements.user_id = movers.user_id;
     `
   };
 

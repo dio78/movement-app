@@ -429,8 +429,8 @@ function Skeleton() {
           </Form>
       }
     </Row>
-    {imageArray.length > 0 && 
-    <img src='https://fakeimg.pl/300/?text=Thumbnail'></img>}
+    {/* {imageArray.length > 0 && 
+    <img src='https://fakeimg.pl/300/?text=Thumbnail'></img>} */}
     {/* <Row>
       <Col xs={6} className='text-center'>
         <Button style={{marginLeft: '20px'}} type='button' onClick={handlePlayClick}>Play Back</Button>
