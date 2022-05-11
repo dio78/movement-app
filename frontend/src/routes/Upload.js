@@ -264,7 +264,6 @@ function Skeleton() {
   const handleFileChoose = (e) => {
     const objectUrl = URL.createObjectURL(e.target.files[0]);
     setFile(objectUrl);
-
   }
 
   const CanvasElement = () => {

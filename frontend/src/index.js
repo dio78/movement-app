@@ -6,7 +6,7 @@ import {
   Route,
 } from "react-router-dom";
 import App from "./App";
-import Expenses from "./routes/expenses";
+import Create from "./routes/Create";
 import ThumbnailSection from "./routes/ThumbnailSection";
 import Skeleton from './routes/Skeleton';
 import Upload from './routes/Upload';
@@ -20,7 +20,7 @@ root.render(
     <Routes>
       <Route path="/" element={<App />}>
         <Route path="home" element={<Home />} />
-        <Route path="expenses" element={<Expenses />} />
+        <Route path="create" element={<Create />} />
         <Route path="library" element={<ThumbnailSection />} />
         <Route path="skeleton" element={<Skeleton />} />
         <Route path="upload" element={<Upload />} />
