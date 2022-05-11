@@ -2,6 +2,7 @@ import { Container, Row, Col } from "react-bootstrap";
 import styled from "styled-components";
 import { useRef, useState, useEffect } from "react";
 import * as poseDetection from '@tensorflow-models/pose-detection';
+import normalizeKeypoints from "../tensorActions/tensorActions";
 
 export default function Create() {
 
@@ -13,7 +14,6 @@ export default function Create() {
   const handleFileChoose = (e) => {
     const objectUrl = URL.createObjectURL(e.target.files[0]);
     setFile(objectUrl);
-    alert('Changed!')
   }
 
   const movenetLoad = async () => {
@@ -21,7 +21,8 @@ export default function Create() {
     const detectorConfig = {
       modelType: poseDetection.movenet.modelType.MULTIPOSE_LIGHTNING,
       enableTracking: true,
-      trackerType: poseDetection.TrackerType.BoundingBox
+      trackerType: poseDetection.TrackerType.BoundingBox,
+      multiPoseMaxDimension: 512
     };
 
     const detector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet, detectorConfig);
@@ -43,7 +44,7 @@ export default function Create() {
     //   // recordVideo();
     // } else {
     //   // if (recordedChunks.length > 0) {
-    //   //   debugger;
+
     //   //   stopRecordVideo();
     //   // }
     //   console.log('stopped recording')
@@ -54,6 +55,8 @@ export default function Create() {
     };
   }, [detectorRef.current]);
 
+  
+
   const detect = async (detector) => {
     if (otherVidRef.current == null) {
       console.log('false')
@@ -61,11 +64,17 @@ export default function Create() {
     }
 
     const video = otherVidRef.current;
+    // video.videoHeight = '360px'
+    if (video.readyState === 4) {
 
-    const pose = await detector.estimatePoses(video);
-    
-    
-    drawSkeleton(canvasRef, pose);
+      const pose = await detector.estimatePoses(video);
+
+      normalizeKeypoints(pose[0].keypoints, 640, 360.56, otherVidRef.current.videoWidth, otherVidRef.current.videoHeight)
+
+      debugger;
+
+      drawSkeleton(canvasRef, pose);
+    }
   }
 
   const drawSkeleton = (canvas, pose) => {
@@ -102,12 +111,20 @@ export default function Create() {
     
   }
 
+  const handleLoaded = () => {
+    otherVidRef.current.addEventListener("resize", ev => {
+      alert('resized!');
+    })
+    console.log('Width: ' + otherVidRef.current.videoWidth)
+    console.log('Height: ' + otherVidRef.current.videoHeight)
+  }
+
+  
   
   const VideoUpload = () => {
     if (file) {
-      debugger;
       return (
-        <StyledVideoUpload controls ref={otherVidRef} src={file} type='video/mp4' autoPlay></ StyledVideoUpload>
+        <StyledVideoUpload controls ref={otherVidRef} src={file} type='video/mp4' autoPlay onLoadedMetadata={handleLoaded}></ StyledVideoUpload>
       )
     } else {
       return null;
@@ -137,6 +154,11 @@ export default function Create() {
     )
   }
 
+  const handleDebug = (e) => {
+    e.preventDefault();
+    debugger;
+  }
+
   if (!file) {
     movenetLoad();
     return (
@@ -151,6 +173,7 @@ export default function Create() {
           Upload a different video
           <HiddenFileInput type="file" onChange={handleFileChoose} />
         </UploadLabel>
+        <button onClick={handleDebug}>Hi</button>
         <Col xs={{span:10, offset:1}}>
           <canvas ref={canvasRef}
             width='700px'
@@ -174,7 +197,7 @@ export default function Create() {
 const StyledVideoUpload = styled.video`
 display: block;
 margin: 2rem auto 0 auto;
-width: 40rem;
+width: 640px;
 height: auto;
 border-radius: 10px;
 `
