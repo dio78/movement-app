@@ -1,13 +1,16 @@
 import normalizeKeypoints from "./tensorActions";
 import * as poseDetection from '@tensorflow-models/pose-detection';
 import React, { useRef, useState } from "react";
-import { Row, Col, Container } from "react-bootstrap";
+import { Row, Col, Container, Form, Button } from "react-bootstrap";
 
 const SelectKeyframes = (props) => {
 
+
+  debugger;
   const [selectedKeypointArray, setSelectedKeypointArray] = useState([]);
   const imageDetectorRef = useRef(null);
   const canvasRef = useRef(null);
+  const [done, setDone] = useState(false)
 
   const movenetLoad = async () => {
 
@@ -112,7 +115,10 @@ const SelectKeyframes = (props) => {
 
   const handleKeyframeClick = (e) => {
     e.preventDefault();
-    
+
+    debugger;
+    props.setTest('hi!')
+
     const video = props.otherVidRef.current;
     const canvas = props.selectCanvasRef.current;
     // canvasRef.current.height = canvasRef.current.width * (400/700);
@@ -145,6 +151,7 @@ const SelectKeyframes = (props) => {
     //   drawSkeleton(canvas.current, [keypoints])
     // }
 
+   
     return (
       <Col xs={3} className='text-center'>
       <canvas ref={canvas}
@@ -161,71 +168,132 @@ const SelectKeyframes = (props) => {
         borderWidth: '5px',
       }}
       />
-      <p>{props.index}</p>
+      <p>Step {props.index}</p>
       </Col>
     )
 
   }
 
-return (
-  <>
-  <button type="button" onClick={handleKeyframeClick}>Select As Step</button>
-  <Container fluid>
-  <Row>
-    <Col xs={12} className="my-1">
-      {/* <canvas ref={canvasRef}
-      
-      width='700px'
-      height='400px'
-      
-      style={{
-        width: '25%',
-        zIndex: 4, 
-        borderStyle: 'solid',
-        borderColor: 'blue',
-        borderWidth: '5px'
-      }}
-      /> */}
-      <CanvasContainer />
-      <Col xs={{span: 10, offset: 1}} className='mb-5'>
-        <Row>
-        {selectedKeypointArray.length > 0 && selectedKeypointArray.map((keypointArray, i) => {
-          
-          const value = {
-            index: i + 1
-          };
-          debugger;
+  const HelloComponent = () => {
+    if (props.analyzed) {
+      return (
+        <h2>Hi!</h2>
+      )
+    } else {
+      return null;
+    }
+  }
 
-          const keypoints = {
-            keypoints: keypointArray
-          };
+  const submitIt = (e) => {
+    e.preventDefault();
 
-          return(
-              <CanvasElement {...keypoints} {...value}/>
-              // <canvas key={i}
+    debugger;
+  }
 
-              // width='700px'
-              // height='400px'
-              
-              // style={{
-              //   width: '20%',
-              //   display: 'inline', 
-              //   zIndex: 4, 
-              //   borderStyle: 'solid',
-              //   borderColor: 'blue',
-              //   borderWidth: '5px',
-              //   margin: '10px 5%'
-              // }}
-              // />
-          )
-        })}
-        </Row>
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+
+  const FormComponent = () => {
+
+    if (done) {
+      return (
+        <Form>
+            <Form.Group className="mb-3" controlId="formBasicText">
+              <Form.Label>Movement Title</Form.Label>
+              <Form.Control type="text" placeholder="Enter email" value={title} onChange={(e) => setTitle(e.target.value)}/>
+              <Form.Text className="text-muted">
+                We'll never share your email with anyone else.
+              </Form.Text>
+            </Form.Group>
+
+            <Form.Group className="mb-3" controlId="formBasicTextArea">
+              <Form.Label>Movement Description</Form.Label>
+              <Form.Control as="textarea" rows={3} placeholder="Explain your movement" value={description} onChange={(e) => setDescription(e.target.value)}/>
+            </Form.Group>
+            
+            <Button variant="primary" type="click" onClick={submitIt}>
+              Submit
+            </Button>
+          </Form>
+      )
+    } else {
+      return null;
+    }
+    
+  }
+
+if (props.analyzed) {
+  return (
+    <>
+    
+    <button type="button" className="mb-1" onClick={handleKeyframeClick}>Select As Step</button>
+    <button type="button" className="mb-1" onClick={() => setDone(true)}>Done</button>
+    <h2>Navigate your video, and break your movement down into its most essential steps.</h2>
+    <h3>When you are finished, click done!</h3>
+    <Container fluid>
+    <Row>
+      <Col xs={12} className="my-1">
+        {/* <canvas ref={canvasRef}
+        
+        width='700px'
+        height='400px'
+        
+        style={{
+          width: '25%',
+          zIndex: 4, 
+          borderStyle: 'solid',
+          borderColor: 'blue',
+          borderWidth: '5px'
+        }}
+        /> */}
+        <CanvasContainer />
+        <Col xs={{span: 10, offset: 1}} className='mb-5'>
+          <Row>
+          {selectedKeypointArray.length > 0 && selectedKeypointArray.map((keypointArray, i) => {
+            
+            const value = {
+              index: i + 1
+            };
+            debugger;
+  
+            const keypoints = {
+              keypoints: keypointArray
+            };
+  
+            return(
+                <CanvasElement {...keypoints} {...value}/>
+            )
+          })}
+          </Row>
+        </Col>
       </Col>
-    </Col>
-  </Row>
-  </Container>
-  </>
-)
+    </Row>
+    {done && 
+        <Form>
+            <Form.Group className="mb-3" controlId="formBasicText">
+              <Form.Label>Movement Title</Form.Label>
+              <Form.Control type="text" placeholder="Enter email" value={title} onChange={(e) => setTitle(e.target.value)}/>
+              <Form.Text className="text-muted">
+                We'll never share your email with anyone else.
+              </Form.Text>
+            </Form.Group>
+
+            <Form.Group className="mb-3" controlId="formBasicTextArea">
+              <Form.Label>Movement Description</Form.Label>
+              <Form.Control as="textarea" rows={3} placeholder="Explain your movement" value={description} onChange={(e) => setDescription(e.target.value)}/>
+            </Form.Group>
+            
+            <Button variant="primary" type="click" onClick={submitIt}>
+              Submit
+            </Button>
+          </Form>
+      }
+    </Container>
+    </>
+  )
+} else {
+  return null;
+}
 };
 
 export default SelectKeyframes;
