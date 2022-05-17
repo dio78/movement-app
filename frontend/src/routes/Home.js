@@ -66,6 +66,7 @@ export default function ThumbnailSection () {
 
 const ThumbnailImage = styled.img`
   border-radius: 10px;
+  width: 100%;
 `
 
 const UsernameDisplay = styled.h5`

@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { useRef, useState, useEffect } from "react";
 import * as poseDetection from '@tensorflow-models/pose-detection';
 import normalizeKeypoints from "../tensorActions/tensorActions";
+import SelectKeyframes from "../tensorActions/selectKeyframes";
 
 export default function Create() {
 
@@ -10,6 +11,7 @@ export default function Create() {
   let otherVidRef = useRef(null);
   const detectorRef = useRef(null);
   const canvasRef = useRef(null);
+  const selectCanvasRef = useRef(null);
 
   const handleFileChoose = (e) => {
     const objectUrl = URL.createObjectURL(e.target.files[0]);
@@ -70,8 +72,6 @@ export default function Create() {
       const pose = await detector.estimatePoses(video);
 
       normalizeKeypoints(pose[0].keypoints, 640, 360.56, otherVidRef.current.videoWidth, otherVidRef.current.videoHeight)
-
-      debugger;
 
       drawSkeleton(canvasRef, pose);
     }
@@ -180,12 +180,33 @@ export default function Create() {
             height='400px'
             
             style={{
+              // display: 'block',
               zIndex: 4, 
               borderStyle: 'solid',
               borderColor: 'green',
               borderWidth: '5px'
             }}/>
         </Col>
+        <Col xs={{span:10, offset:1}} className='mb-1'>
+          <StyledSelectKeyframes otherVidRef={otherVidRef} selectCanvasRef={selectCanvasRef} />
+        </Col>
+        
+        <Row>
+          <Col xs={{span:10, offset:1}}>
+            
+            <canvas ref={selectCanvasRef}
+              width='700px'
+              height='400px'
+              
+              style={{
+                zIndex: 4, 
+                borderStyle: 'solid',
+                borderColor: 'red',
+                borderWidth: '5px'
+              }} />
+          </Col>
+        </Row>
+        {/* <SelectKeyframes otherVidRef={otherVidRef} selectCanvasRef={selectCanvasRef} /> */}
         
         </Container>
       </>
@@ -193,6 +214,11 @@ export default function Create() {
   }
 
 }
+
+const StyledSelectKeyframes = styled(SelectKeyframes)`
+  display: block;
+  margin-bottom: 40px;
+`
 
 const StyledVideoUpload = styled.video`
 display: block;
