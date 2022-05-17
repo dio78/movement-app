@@ -1,4 +1,4 @@
-import { Container, Row, Col } from "react-bootstrap";
+import { Container, Row, Col, Form } from "react-bootstrap";
 import styled from "styled-components";
 import { useRef, useState, useEffect } from "react";
 import * as poseDetection from '@tensorflow-models/pose-detection';
@@ -8,10 +8,16 @@ import SelectKeyframes from "../tensorActions/selectKeyframes";
 export default function Create() {
 
   let [file, setFile] = useState(null);
+  let [test, setTest] = useState('');
+  let [analyzed, setAnalyzed] = useState(false);
+  let [processing, setProcessing] = useState(true);
+  let [keypointArray, setKeypointArray] = useState([])
   let otherVidRef = useRef(null);
   const detectorRef = useRef(null);
   const canvasRef = useRef(null);
   const selectCanvasRef = useRef(null);
+
+  const newArray = []
 
   const handleFileChoose = (e) => {
     const objectUrl = URL.createObjectURL(e.target.files[0]);
@@ -74,6 +80,9 @@ export default function Create() {
       normalizeKeypoints(pose[0].keypoints, 640, 360.56, otherVidRef.current.videoWidth, otherVidRef.current.videoHeight)
 
       drawSkeleton(canvasRef, pose);
+      if(!analyzed && otherVidRef.current) {
+        newArray.push(pose[0].keypoints);
+      }
     }
   }
 
@@ -111,20 +120,37 @@ export default function Create() {
     
   }
 
-  const handleLoaded = () => {
+  const handleLoaded = (e) => {
     otherVidRef.current.addEventListener("resize", ev => {
       alert('resized!');
     })
     console.log('Width: ' + otherVidRef.current.videoWidth)
     console.log('Height: ' + otherVidRef.current.videoHeight)
+    if (analyzed) {
+      e.target.controls = true;
+      e.target.autoPlay = false;
+    } else {
+      e.target.controls = false;
+      e.target.play();
+    }
   }
 
-  
+  const handleVideoEnded = (e) => {
+    if (analyzed) {
+      return;
+    }
+    e.target.autoPlay = false;
+    alert('happening!')
+    setAnalyzed(true);
+    setProcessing(false);
+    setKeypointArray(newArray);
+  }
+ 
   
   const VideoUpload = () => {
     if (file) {
       return (
-        <StyledVideoUpload controls ref={otherVidRef} src={file} type='video/mp4' autoPlay onLoadedMetadata={handleLoaded}></ StyledVideoUpload>
+        <StyledVideoUpload ref={otherVidRef} src={file} type='video/mp4' onLoadedMetadata={handleLoaded} onEnded={handleVideoEnded}></ StyledVideoUpload>
       )
     } else {
       return null;
@@ -159,6 +185,31 @@ export default function Create() {
     debugger;
   }
 
+
+  
+
+  const pullData = (data) => {
+
+    return data;
+  }
+
+  const doIt = (e) => {
+    e.preventDefault();
+
+    let data = pullData
+
+  }
+
+  const ProcessingComponent = () => {
+    if (processing) {
+      return (
+        <h1>Analyzing Video</h1>
+      )
+    } else {
+      return null;
+    }
+  }
+
   if (!file) {
     movenetLoad();
     return (
@@ -168,42 +219,40 @@ export default function Create() {
     return (
       <>
         <Container fluid style={{width: "100%"}} className="text-center">
-          <VideoUpload className="center" />
-          <UploadLabel>
-          Upload a different video
-          <HiddenFileInput type="file" onChange={handleFileChoose} />
-        </UploadLabel>
-        <button onClick={handleDebug}>Hi</button>
-        <Col xs={{span:10, offset:1}}>
-          <canvas ref={canvasRef}
-            width='700px'
-            height='400px'
-            
-            style={{
-              // display: 'block',
-              zIndex: 4, 
-              borderStyle: 'solid',
-              borderColor: 'green',
-              borderWidth: '5px'
-            }}/>
-        </Col>
-        <Col xs={{span:10, offset:1}} className='mb-1'>
-          <StyledSelectKeyframes otherVidRef={otherVidRef} selectCanvasRef={selectCanvasRef} />
-        </Col>
-        
         <Row>
-          <Col xs={{span:10, offset:1}}>
+          <Col>
+            <ProcessingComponent />
+          </Col>
+        </Row>
+        <Row>
+          <Col xs={6}>
+            <VideoUpload className="center" />
+              <UploadLabel>
+              Upload a different video
+              <HiddenFileInput type="file" onChange={handleFileChoose} />
+            </UploadLabel>
+          </Col>
             
-            <canvas ref={selectCanvasRef}
+          <Col xs={6}>
+            <canvas ref={canvasRef}
               width='700px'
               height='400px'
               
               style={{
+                // display: 'block',
                 zIndex: 4, 
                 borderStyle: 'solid',
-                borderColor: 'red',
+                borderColor: 'green',
                 borderWidth: '5px'
-              }} />
+              }}/>
+          </Col>
+        </Row>
+        <Col xs={12} className='mb-1'>
+          <StyledSelectKeyframes otherVidRef={otherVidRef} selectCanvasRef={selectCanvasRef} setTest={setTest} keypointArray={keypointArray} analyzed={analyzed}/>
+        </Col>
+        <Row>
+          <Col xs={{span:10, offset:1}}>
+            
           </Col>
         </Row>
         {/* <SelectKeyframes otherVidRef={otherVidRef} selectCanvasRef={selectCanvasRef} /> */}
