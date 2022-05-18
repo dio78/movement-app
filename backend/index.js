@@ -1,14 +1,19 @@
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
+
 const express = require('express');
 const cors = require('cors');
 const parse = require('pg-connection-string').parse;
 const http = require('http');
 const bodyParser = require('body-parser');
 
-const { Pool } = require('pg');
+const { pool } = require('./queries/queries');
 
-const config = parse('postgres://me:password@localhost:5432/movement')
+const { requireSignin, requireAuth } = require('./services/authentication')
 
-const pool = new Pool(config);
+const defaultRouter = require('./routes/routes');
+const { signin, signup } = require('./routes/sign-in')
 
 const app = express();
 
@@ -23,29 +28,17 @@ app.use(
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb'}));
 
-const defaultRouter = require('./routes/routes');
 
-app.get('/test', (req, res) => res.send('This is working'));
-app.use('/api', defaultRouter);
+// Routes
+app.get('/test', (req, res) => res.send('I work!'));
+app.post('/auth/sign-in', requireSignin, signin);
+app.post('/auth/sign-up', signup);
+app.use('/api', defaultRouter)
+
 
 const port = 8000;
 const server = http.createServer(app);
 server.listen(port);
 console.log('Server listening on:', port);
 
-const addUser = (req, res, next) => {
-  const query = {
-    text: `
-    INSERT INTO movers (email, name, password)
-      VALUES ($1, $2, $3)
-    `,
-    values: ['dio@hello.com, dio, password1']
-  };
-  
-  pool.query(query, (err, results) => {
-    if (err) {
-      throw err;
-    }
-    res.send(results.rows);
-  });
-};
+module.exports = app;
