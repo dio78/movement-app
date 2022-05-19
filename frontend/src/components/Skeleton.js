@@ -407,6 +407,7 @@ function Skeleton() {
         <Button style={{marginLeft: '20px'}} type='button' onClick={handlePlayClick}>Play Back</Button>
         <Button style={{marginLeft: '20px'}} type='button' onClick={() => setUploadModal(!uploadModal)}>Upload</Button>
       </Col>
+      <button onClick={handleScreenshot}>Screenshot</button>
       {/* <UploadModal /> */}
       {uploadModal && 
         <Form>

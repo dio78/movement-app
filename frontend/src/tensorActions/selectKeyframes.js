@@ -2,6 +2,7 @@ import normalizeKeypoints from "./tensorActions";
 import * as poseDetection from '@tensorflow-models/pose-detection';
 import React, { useRef, useState } from "react";
 import { Row, Col, Container, Form, Button } from "react-bootstrap";
+import { uploadMovement } from "../actions/actions";
 
 const SelectKeyframes = (props) => {
 
@@ -11,6 +12,10 @@ const SelectKeyframes = (props) => {
   const imageDetectorRef = useRef(null);
   const canvasRef = useRef(null);
   const [done, setDone] = useState(false)
+  const imageRef = useRef(null);
+  const [stepsComplete, setStepsComplete] = useState(false);
+  const thumbnailCanvasRef = useRef(null);
+  
 
   const movenetLoad = async () => {
 
@@ -117,7 +122,7 @@ const SelectKeyframes = (props) => {
     e.preventDefault();
 
     debugger;
-    props.setTest('hi!')
+    // props.setTest('hi!')
 
     const video = props.otherVidRef.current;
     const canvas = props.selectCanvasRef.current;
@@ -174,18 +179,19 @@ const SelectKeyframes = (props) => {
 
   }
 
-  const HelloComponent = () => {
-    if (props.analyzed) {
-      return (
-        <h2>Hi!</h2>
-      )
-    } else {
-      return null;
-    }
-  }
-
   const submitIt = (e) => {
     e.preventDefault();
+
+    const body = {
+      user_id: JSON.parse(localStorage.currentUser).user_id,
+      title: title,
+      description: description,
+      thumbnail: imageRef.current,
+      keyframes: JSON.stringify(props.keypointArray),
+      steps: JSON.stringify(selectedKeypointArray)
+    };
+
+    uploadMovement(body);
 
     debugger;
   }
@@ -222,12 +228,39 @@ const SelectKeyframes = (props) => {
     
   }
 
+  const handleThumbnailClick = (e) => {
+    e.preventDefault();
+    debugger;
+    const canvas = thumbnailCanvasRef.current;
+
+    const video = props.otherVidRef.current;
+
+    const ctx = canvas.getContext('2d')
+
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const dataURL = canvas.toDataURL();
+
+    debugger;
+
+    imageRef.current = dataURL;
+
+    debugger;
+  }
+
+  const handleTitleClick = (e) => {
+    e.preventDefault();
+    debugger;
+    setDone(true);
+    
+  }
+
 if (props.analyzed) {
   return (
     <>
     
     <button type="button" className="mb-1" onClick={handleKeyframeClick}>Select As Step</button>
-    <button type="button" className="mb-1" onClick={() => setDone(true)}>Done</button>
+    <button type="button" className="mb-1" onClick={() => setStepsComplete(true)}>Done</button>
     <h2>Navigate your video, and break your movement down into its most essential steps.</h2>
     <h3>When you are finished, click done!</h3>
     <Container fluid>
@@ -268,6 +301,26 @@ if (props.analyzed) {
         </Col>
       </Col>
     </Row>
+    {stepsComplete &&
+    <>
+      <h2>Select a thumbnail for your Movement from your video</h2>
+      <canvas ref={thumbnailCanvasRef}
+        
+        width='700px'
+        height='400px'
+        
+        style={{
+          width: '25%',
+          zIndex: 4, 
+          borderStyle: 'solid',
+          borderColor: 'blue',
+          borderWidth: '5px'
+        }}
+        />
+      <button type="button" onClick={handleThumbnailClick}>Take Screenshot</button>
+      <button type="button" onClick={handleTitleClick}>This is great</button>
+    </>
+      }
     {done && 
         <Form>
             <Form.Group className="mb-3" controlId="formBasicText">

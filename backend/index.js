@@ -29,11 +29,15 @@ app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb'}));
 
 
+const queries = require('./queries/queries')
+
+
 // Routes
 app.get('/test', (req, res) => res.send('I work!'));
 app.post('/auth/sign-in', requireSignin, signin);
 app.post('/auth/sign-up', signup);
-app.use('/api', defaultRouter)
+app.use('/api', requireAuth, defaultRouter)
+app.get('/boi/boy', (req, res) => queries.setUpTables)
 
 
 const port = 8000;

@@ -3,13 +3,19 @@ const jwt = require('jwt-simple')
 const keys = require('../config/keys');
 
 function tokenForUser(user) {
-  return jwt.encode({ sub: user.id,
+  return jwt.encode({ 
+    sub: user.user_id,
     iat: Math.round(Date.now() / 1000),
     exp: Math.round(Date.now() / 1000 + 5 * 60 * 60)}, keys.TOKEN_SECRET)
 };
 
 exports.signin = function(req, res, next) {
   res.send({
+    user: {
+      user_id: req.user.user_id,
+      username: req.user.username,
+      email: req.user.email
+    },
     token: tokenForUser(req.user)
   });
 };
