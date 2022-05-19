@@ -3,10 +3,11 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import AddIcon from '@mui/icons-material/Add';
+import { saveLibraryVid } from "../actions/actions";
 
 export default function ThumbnailSection () {
 
-  const [videoArray, setVideoArray] = useState([]);
+  const [movementArray, setMovementArray] = useState([]);
 
   useEffect(()=> {
     getVideos();
@@ -15,15 +16,24 @@ export default function ThumbnailSection () {
   const getVideos = async () => {
     
     try {
+      const headerConfig = {
+        headers: {
+          Authorization: `Bearer ${localStorage.token}`,
+          'Content-Type': 'application/json',
+        },
+      };
+
       const request = axios.get(
-        `http://localhost:8000/api/movements/`
+        `http://localhost:8000/api/movements/`, headerConfig
       );
 
       const { data, status } = await request
       
       if (status === 200) {
-        setVideoArray(data);
+
+        setMovementArray(data);
         console.log(data);
+        debugger;
       } else {
         alert('oops')
       }
@@ -33,7 +43,7 @@ export default function ThumbnailSection () {
   }
 
   const DisplayVideos = () => {
-    if (videoArray.length === 0) {
+    if (movementArray.length === 0) {
       return (
         <div>
           <h2>There are no videos to show!</h2>
@@ -42,18 +52,35 @@ export default function ThumbnailSection () {
     }
   }
 
+  const handleAdd = (e) => {
+    e.preventDefault();
+
+    debugger
+    const movement_id = parseInt(e.target.id)
+
+    const body = {
+      user_id: JSON.parse(localStorage.currentUser).user_id,
+      movement_id: movement_id
+    };
+
+    saveLibraryVid(body);
+
+    debugger;
+  }
+
   return (
     <main style={{ padding: "1rem 0" }}>
       <DisplayVideos />
-      {videoArray.length > 0 && videoArray.map((video, i) => {
+      {movementArray.length > 0 && movementArray.map((movement, i) => {
         debugger;
         return(
           <Col key={i} xs={{span: 6, offset: 2}} className='mb-5'>
-             <UsernameDisplay>{video.firstname}</UsernameDisplay>
+             <UsernameDisplay>{movement.username}</UsernameDisplay>
             <PhotoContainer>
-              <ThumbnailImage src={video.thumbnail} alt='Thumbnail of video that is described in title above' onClick={() => alert('clicked')}></ThumbnailImage>
-              <AddButton>
-                <AddIcon/>
+              <ThumbnailImage src={movement.thumbnail} alt='Thumbnail of video that is described in title above' onClick={() => alert('clicked')}></ThumbnailImage>
+              {/* <TitleLabel>{movement.title}</TitleLabel> */}
+              <AddButton onClick={handleAdd} id={movement.movement_id}>
+                <AddIcon id={movement.movement_id}/>
                 Add
               </AddButton>
             </PhotoContainer>
@@ -71,6 +98,9 @@ const ThumbnailImage = styled.img`
 
 const UsernameDisplay = styled.h5`
   font-weight: bold;
+`
+
+const TitleLabel = styled.h2`
 `
 
 const AddButton = styled.button`

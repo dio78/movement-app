@@ -40,7 +40,7 @@ const jwtQuery = (id) => ({
   text: `
   SELECT *
   FROM movers
-  WHERE user_id =$1`,
+  WHERE user_id = $1`,
   values: [id]
 })
 
@@ -53,7 +53,7 @@ const jwtLogin = new JwtStrategy(jwtOptions, function(payload, done) {
   pool.query(jwtQuery(payload.sub), (err, user) => {
     if (err) { return done(err, false) }
 
-    if (user) {
+    if (user.rowCount === 1) {
       done(null, user)
     } else {
       done(null, false)
