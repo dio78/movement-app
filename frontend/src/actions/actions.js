@@ -47,7 +47,7 @@ export async function uploadMovement (body) {
     );
   
     if (uploadRequest.status === 200) {
-      return;
+      return 'success!'
     }
   } catch (error) {
     console.log(error);

@@ -16,6 +16,7 @@ function LearningSkeletonOverlay() {
   const camRef = useRef(null);
   const canvasRef = useRef(null);
   const [showFace, setShowFace] = useState(true);
+  let [magnifier, setMagnifier] = useState(null);
 
   const movenetLoad = async () => {
 
@@ -59,10 +60,17 @@ function LearningSkeletonOverlay() {
 
     let result = pose[0].keypoints.every( e => e.score > .1);
 
+    const widthRatio = 1 / magnifier;
+    const heightRatio = 1 / magnifier;
 
+    if (magnifier)
+    pose.forEach(keypoint => {
+    keypoint.x = keypoint.x * widthRatio;
+    keypoint.y = keypoint.y * heightRatio;
+    })
+    
     const canvas = canvasRef.current;
     canvas.width = video.videoWidth
-    
     // if (result) {
     //   drawSkeleton(canvas, pose);
     // } else {
@@ -131,9 +139,9 @@ function LearningSkeletonOverlay() {
               style={{
                 position: 'absolute',
                 zIndex: 6, 
-                borderStyle: 'solid',
-                borderColor: 'red',
-                borderWidth: '5px',
+                // borderStyle: 'solid',
+                // borderColor: 'red',
+                // borderWidth: '5px',
 
               }}/>
             <Webcam ref={camRef}

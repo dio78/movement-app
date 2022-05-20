@@ -16,10 +16,10 @@ export default function Library () {
   const [learn, setLearn] = useState(false);
 
   useEffect(()=> {
-    getVideos();
+    getSavedVideos();
   },[])
 
-  const getVideos = async () => {
+  const getSavedVideos = async () => {
   
     
 
@@ -84,26 +84,49 @@ export default function Library () {
       {movementArray.length > 0 && movementArray.map((movement, i) => {
         debugger;
         return(
-          <Col key={i} xs={{span: 6, offset: 2}} className='mb-5'>
-             <UsernameDisplay>{movement.username}</UsernameDisplay>
+          <Row>
+          <Col key={i} xs={{span: 3, offset: 2}} className='mb-5'>
+             
             <PhotoContainer>
-              <ThumbnailImage src={movement.thumbnail} alt='Thumbnail of video that is described in title above' onClick={() => alert('clicked')}></ThumbnailImage>
-              {/* <TitleLabel>{movement.title}</TitleLabel> */}
-              <AddButton onClick={() => navigate(`/learn/${movement.movement_id}`)} id={movement.movement_id}>
-                Learn
-              </AddButton>
+              <Row>
+                <Col>
+                <ThumbnailImage src={movement.thumbnail} alt='Thumbnail of video that is described in title above' onClick={() => alert('clicked')}></ThumbnailImage>
+                </Col>
+              </Row>
+              <Row>
+                <Col className="text-center">
+                  <AddButton onClick={() => navigate(`/learn/${movement.movement_id}`)} id={movement.movement_id}>
+                  Learn
+                </AddButton>
+                <RemoveButton>Remove</RemoveButton>
+                </Col>
+              </Row>
+             
+              
+              
             </PhotoContainer>
           </Col>
+          <Col>
+          <TitleLabel>{movement.title}</TitleLabel>
+          <UsernameDisplay>{movement.username}</UsernameDisplay>
+          <Row>
+            <Col className="mt-3">
+              <h5>{movement.steps.length} steps</h5>  
+            </Col>
+          </Row>
+          
+        </Col>
+        </Row>
           
         )
       })}
       {learn && 
       <Navigate to='/learn' replace={true} />}
     </main>
+    
   );
 } 
 
-const StyledDisplay = styled
 
 const ThumbnailImage = styled.img`
   border-radius: 10px;
@@ -118,12 +141,7 @@ const TitleLabel = styled.h2`
 `
 
 const AddButton = styled.button`
-position: absolute;
 display: inline-flex;
-top: 93%;
-left: 93%;
-transform: translate(-50%, -50%);
--ms-transform: translate(-50%, -50%);
 background-color: #6DCB6B;
 color: #FFFFFF;
 font-size: 16px;
@@ -131,7 +149,26 @@ font-weight: bold;
 padding: 6px 10px 6px 5px;
 border: none;
 cursor: pointer;
+margin-right: .5rem;
 border-radius: 5px;
+
+&:hover{
+  background-color: #62B761;
+}
+`
+
+const RemoveButton = styled.button`
+display: inline-flex;
+background-color: red;
+color: #FFFFFF;
+font-size: 16px;
+font-weight: bold;
+padding: 6px 10px 6px 5px;
+border: none;
+cursor: pointer;
+margin-left: .5rem;
+border-radius: 5px;
+
 
 &:hover{
   background-color: #62B761;
