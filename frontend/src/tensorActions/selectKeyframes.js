@@ -111,6 +111,8 @@ const SelectKeyframes = (props) => {
 
     // ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
 
+    
+
     const imageCanvas = document.createElement('canvas');
 
     const context = imageCanvas.getContext('2d')
@@ -119,6 +121,7 @@ const SelectKeyframes = (props) => {
 
     const dataURL = imageCanvas.toDataURL();
 
+    debugger
     debugger;
 
     movenetLoad(); 
@@ -133,11 +136,6 @@ const SelectKeyframes = (props) => {
 
     React.useEffect(() => {
       const context = canvas.current.getContext('2d');
-      context.fillStyle = "rgb(200, 0, 0)";
-      context.fillRect(10, 10, 50, 50);
-
-      context.fillStyle = "rgba(0, 0, 200, 0.5)";
-      context.fillRect(30, 30, 50, 50);
 
       drawSkeleton(canvas.current, props.keypoints)
     })
@@ -193,9 +191,22 @@ const SelectKeyframes = (props) => {
       
   }
 
-  const submitIt = (e) => {
+  const submitIt = async (e) => {
     debugger;
     e.preventDefault();
+
+    const newArray = [...stepsArray];
+
+    newArray.forEach((step, i) => {
+      const description = document.getElementById(`${i}text`).value;
+
+      step.description = description;
+      debugger;
+    });
+
+    const updatedArray = [...newArray];
+
+    setStepsArray(updatedArray);
 
     const body = {
       user_id: JSON.parse(localStorage.currentUser).user_id,
@@ -205,8 +216,11 @@ const SelectKeyframes = (props) => {
       steps: JSON.stringify(stepsArray)
     };
 
-    uploadMovement(body);
+    const request = await uploadMovement(body);
 
+    if (request === 'success!'){
+      debugger
+    }
     debugger;
   }
 
@@ -361,7 +375,7 @@ if (props.analyzed) {
                         <h5>Describe this step:</h5>
                       </Col>
                     </Row>
-                    <StyledTextarea type='textarea'
+                    <StyledTextarea id={i + "text"} type='textarea'
                     style={{
                       width: '80%',
                       height: '75%'
@@ -418,16 +432,16 @@ if (props.analyzed) {
 }
 };
 
-const StyledTitleForm = styled.form`
-
-`
 
 const StyledTitleLabel = styled.label`
 
 `
+const StyledTitleForm = styled.label`
+
+`
 
 const StyledTitleInput = styled.input`
-  width: 20%;
+  width: 100%;
   border-radius: 5px;
   border: 1px solid #ccc;
 `

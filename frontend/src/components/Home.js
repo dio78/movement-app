@@ -1,17 +1,52 @@
-import { Col } from "react-bootstrap";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import AddIcon from '@mui/icons-material/Add';
 import { saveLibraryVid } from "../actions/actions";
+import { Row, Col } from "react-bootstrap";
 
 export default function ThumbnailSection () {
 
   const [movementArray, setMovementArray] = useState([]);
+  const [savedMovementArray, setSavedMovementArray] = useState([]);
 
   useEffect(()=> {
     getVideos();
-  },[])
+    getSavedVideos();
+  },[movementArray])
+
+
+  const getSavedVideos = async () => {
+    
+    try {
+      const headerConfig = {
+        headers: {
+          Authorization: `Bearer ${localStorage.token}`,
+          'Content-Type': 'application/json',
+        },
+      };
+
+      const request = axios.get(
+        `http://localhost:8000/api/library/`, headerConfig
+      );
+
+      const { data, status } = await request
+      
+      if (status === 200) {
+        console.log(data);
+        debugger;
+        const newArray = [];
+        data.forEach((item) => {
+          newArray.push(item.movement_id)
+        })
+        setSavedMovementArray(newArray);
+      } else {
+        alert('oops')
+      }
+    } catch(error) {
+      console.log(error);
+    };
+  }
 
   const getVideos = async () => {
     
@@ -70,12 +105,22 @@ export default function ThumbnailSection () {
 
   return (
     <main style={{ padding: "1rem 0" }}>
-      <DisplayVideos />
+      <Row>
+        <Col>
+        <DisplayVideos />
       {movementArray.length > 0 && movementArray.map((movement, i) => {
         debugger;
+        if (savedMovementArray.includes(movement.movement_id)) {
+          let newArray = [...movementArray];
+          newArray.splice(i, 1);
+          setMovementArray(newArray);
+        }
+
+
         return(
-          <Col key={i} xs={{span: 6, offset: 2}} className='mb-5'>
-             <UsernameDisplay>{movement.username}</UsernameDisplay>
+          <Row>
+          <Col key={i} xs={{span: 3, offset: 2}} className='mb-5'>
+             
             <PhotoContainer>
               <ThumbnailImage src={movement.thumbnail} alt='Thumbnail of video that is described in title above' onClick={() => alert('clicked')}></ThumbnailImage>
               {/* <TitleLabel>{movement.title}</TitleLabel> */}
@@ -85,8 +130,22 @@ export default function ThumbnailSection () {
               </AddButton>
             </PhotoContainer>
           </Col>
+          <Col>
+            <TitleLabel>{movement.title}</TitleLabel>
+            <UsernameDisplay>{movement.username}</UsernameDisplay>
+            <Row>
+              <Col className="mt-3">
+                <h5>{movement.steps.length} steps</h5>  
+              </Col>
+            </Row>
+            
+          </Col>
+          </Row>
         )
       })}
+        </Col>
+      </Row>
+      
     </main>
   );
 } 
