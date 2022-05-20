@@ -13,7 +13,7 @@ import { render } from 'react-dom';
 
 
 function Skeleton() {
-
+  
   const [keypointArray, setKeypointArray] = useState([]);
   const [recording, setRecording] = useState(false);
   const counterRef = useRef(0);

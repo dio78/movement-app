@@ -28,8 +28,8 @@ const uploadMovement = (req, res, next) => {
 };
 
 const getSingleMovement = (req, res, next) => {
-  const { movement_id } = req.body;
-
+  const movement_id = req.params.id;
+  
   const query = {
     text: `
     Select 
@@ -44,8 +44,9 @@ const getSingleMovement = (req, res, next) => {
     FROM
       movements
     INNER JOIN movers ON movements.user_id = movers.user_id
-    WHERE movements.movement_id = 1;
-    `
+    WHERE movements.movement_id = $1;
+    `,
+    values: [movement_id]
   };
 
   pool.query(query, (error, results) => {
