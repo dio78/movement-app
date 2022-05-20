@@ -1,8 +1,9 @@
 import { Container, Row, Col, Form } from "react-bootstrap";
 import styled from "styled-components";
+import { keyframes } from "styled-components";
 import { useRef, useState, useEffect } from "react";
 import * as poseDetection from '@tensorflow-models/pose-detection';
-import normalizeKeypoints from "../tensorActions/tensorActions";
+import normalizeKeypoints from "../tensorActions/normalizeKeypoints";
 import SelectKeyframes from "../tensorActions/selectKeyframes";
 
 export default function Create() {
@@ -77,9 +78,13 @@ export default function Create() {
 
       const pose = await detector.estimatePoses(video);
 
+      if (!pose[0]) {
+        return;
+      }
       normalizeKeypoints(pose[0].keypoints, 640, 360.56, otherVidRef.current.videoWidth, otherVidRef.current.videoHeight)
 
       drawSkeleton(canvasRef, pose);
+
       if(!analyzed && otherVidRef.current) {
         newArray.push(pose[0].keypoints);
       }
@@ -136,14 +141,16 @@ export default function Create() {
   }
 
   const handleVideoEnded = (e) => {
-    if (analyzed) {
+    if (keypointArray.length > 0) {
       return;
     }
     e.target.autoPlay = false;
-    alert('happening!')
     setAnalyzed(true);
     setProcessing(false);
-    setKeypointArray(newArray);
+
+    const newArray2 = [...newArray]
+    debugger;
+    setKeypointArray(newArray2);
   }
  
   
@@ -161,6 +168,8 @@ export default function Create() {
     return(
       <Container>
         <Row>
+
+
           <Col xs={{span: 6, offset: 3}} className="text-center mt-5 mb-5">
             <Quote><em>“Life is like riding a bicycle. To keep your balance you must keep moving.”</em><br />-Albert Einstein </Quote>
           </Col>
@@ -203,7 +212,12 @@ export default function Create() {
   const ProcessingComponent = () => {
     if (processing) {
       return (
-        <h1>Analyzing Video</h1>
+        <Row>
+          <Col>
+            <h1>1. Analyzing Video</h1>
+            <Circle />
+          </Col>
+        </Row>
       )
     } else {
       return null;
@@ -218,14 +232,14 @@ export default function Create() {
   } else {
     return (
       <>
-        <Container fluid style={{width: "100%"}} className="text-center">
+        <Container fluid style={{width: "100%"}}>
         <Row>
-          <Col>
+          <Col className="text-center">
             <ProcessingComponent />
           </Col>
         </Row>
         <Row>
-          <Col xs={6}>
+          <Col xs={6} className="text-center">
             <VideoUpload className="center" />
               <UploadLabel>
               Upload a different video
@@ -233,17 +247,20 @@ export default function Create() {
             </UploadLabel>
           </Col>
             
-          <Col xs={6}>
+          <Col xs={6} className="text-center">
             <canvas ref={canvasRef}
               width='700px'
-              height='400px'
+              height='390px'
               
               style={{
                 // display: 'block',
                 zIndex: 4, 
+                width: '85%',
                 borderStyle: 'solid',
-                borderColor: 'green',
-                borderWidth: '5px'
+                borderColor: 'blue',
+                borderWidth: '5px',
+                marginTop: '2rem',
+                borderRadius: '10px'
               }}/>
           </Col>
         </Row>
@@ -252,7 +269,6 @@ export default function Create() {
         </Col>
         <Row>
           <Col xs={{span:10, offset:1}}>
-            
           </Col>
         </Row>
         {/* <SelectKeyframes otherVidRef={otherVidRef} selectCanvasRef={selectCanvasRef} /> */}
@@ -264,6 +280,30 @@ export default function Create() {
 
 }
 
+const breatheAnimation = keyframes`
+ 0% {}
+ 50% {transform: rotate(180deg);}
+ 100% {transform: rotate(360deg);}
+`
+const Circle = styled.div`
+ height: 20px;
+ width: 20px;
+
+ border-radius: 50%;
+ content: "";
+
+ display: inline-block;
+ border-style: solid;
+ border-width: 5px;
+ border-radius: 50%;
+ border-color: black;
+ border-bottom-color: #9292ed;
+ animation-name: ${breatheAnimation};
+ animation-duration: 2s;
+ animation-iteration-count: infinite;
+ animation-timing-function: linear;
+`
+
 const StyledSelectKeyframes = styled(SelectKeyframes)`
   display: block;
   margin-bottom: 40px;
@@ -272,7 +312,7 @@ const StyledSelectKeyframes = styled(SelectKeyframes)`
 const StyledVideoUpload = styled.video`
 display: block;
 margin: 2rem auto 0 auto;
-width: 640px;
+width: 85%;
 height: auto;
 border-radius: 10px;
 `

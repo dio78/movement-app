@@ -7,7 +7,7 @@ router.route('/movements').get(queries.getAllMovements).post(queries.uploadMovem
 
 router.route('/library').get(queries.getSavedMovements).post(queries.saveVidToLibrary);
 
-router.route('/learn').get(queries.getSingleMovement);
+router.route('/learn/:id').get(queries.getSingleMovement);
 
 router.route('/tables').get(queries.setUpTables);
 
